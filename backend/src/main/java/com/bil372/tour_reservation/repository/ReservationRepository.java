@@ -32,5 +32,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
         nativeQuery = true
     )
     int countPassengersInPackage(@Param("packageId") Integer packageId);
+    
+    @Query(
+        value = "SELECT * FROM reservation WHERE user_id = :userId ORDER BY reservation_date DESC",
+        nativeQuery = true
+    )
+    List<Reservation> findReservationByUserId(@Param("userId") Integer userId);
    
 }

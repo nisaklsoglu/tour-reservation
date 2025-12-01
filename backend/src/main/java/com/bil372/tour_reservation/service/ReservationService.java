@@ -41,51 +41,48 @@ public class ReservationService {
         TourPackage tourPackage = tourPackageRepository.findById(request.getPackageId())
                 .orElseThrow(() -> new RuntimeException("Paket bulunamadı!"));
 
-        // 2. KAPASİTE KONTROLÜ
-        int capacity = tourPackage.getTour().getCapacity();
-        int currentPassengers = reservationRepository.countPassengersInPackage(request.getPackageId());
-        int newPassengersCount = request.getPassengers().size();
-
-        if (currentPassengers + newPassengersCount > capacity) {
-            throw new RuntimeException("Kapasite Dolu! Kalan yer: " + (capacity - currentPassengers));
+        // 2. KAPASİTE KONTROLÜ (YENİ MANTIK)
+        // Frontend'den gelen yolcu sayısı ile veritabanındaki kalan koltuğu kıyasla
+        int totalPassengers = request.getPassengers().size(); // Listeden alıyoruz
+        
+        if (tourPackage.getAvailableSeats() < totalPassengers) {
+            throw new RuntimeException("Kapasite Dolu! Kalan yer: " + tourPackage.getAvailableSeats());
         }
 
-        // 3. Rezervasyon Nesnesini Oluştur
+        // 3. STOKTAN DÜŞ
+        tourPackage.setAvailableSeats(tourPackage.getAvailableSeats() - totalPassengers);
+        tourPackageRepository.save(tourPackage);
+
+        // 4. Rezervasyon Ana Kaydını Oluştur
         Reservation reservation = new Reservation();
-        
-        // --- İSTEĞİN ÜZERİNE BURASI setUser_id OLARAK KALDI ---
-        reservation.setUser_id(request.getUserId());
-        // -----------------------------------------------------
-        
+        reservation.setUser_id(request.getUserId()); // Mevcut kullanıcı
+       // DOĞRU: Yukarıda veritabanından çektiğimiz 'tourPackage' nesnesini veriyoruz
         reservation.setTourPackage(tourPackage);
-        reservation.setReservationDate(LocalDate.now());
-        reservation.setStatus("Onaylandı");
+        reservation.setReservationDate(java.time.LocalDate.now());
+        reservation.setStatus("Beklemede"); 
 
-        // Fiyat Hesapla
+        // Fiyat Hesapla (Basit mantık: Kişi Başı * Kişi Sayısı)
+        // İleride oda tipine göre burada switch-case yapabiliriz.
         if (tourPackage.getBasePrice() != null) {
-            BigDecimal price = tourPackage.getBasePrice().multiply(BigDecimal.valueOf(newPassengersCount));
-            reservation.setTotalPrice(price);
+            BigDecimal totalPrice = tourPackage.getBasePrice().multiply(BigDecimal.valueOf(totalPassengers));
+            reservation.setTotalPrice(totalPrice);
         }
 
-        // 4. Önce Rezervasyonu Kaydet (ID oluşması için)
+        // Rezervasyonu Kaydet (ID oluşsun diye)
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        // 5. Şimdi Yolcuları Kaydet
+        // 5. YOLCULARI KAYDET (Döngü ile)
         for (PassengerRequest pReq : request.getPassengers()) {
             Passenger passenger = new Passenger();
             
-            // --- VERİ AKTARIMI (MAPPING) ---
             passenger.setPassengerName(pReq.getName());
             passenger.setPassengerTcKimlik(pReq.getTcKimlik());
             passenger.setPassengerPhoneNo(pReq.getPhone());
             passenger.setPassengerEmail(pReq.getEmail());
-            
-            // YENİ EKLENEN ZORUNLU ALANLAR (Pasaport ve Doğum Tarihi)
-            passenger.setBirthDate(pReq.getBirthDate());
             passenger.setPasaportNo(pReq.getPasaportNo());
-            passenger.setPasaportExpirationDate(pReq.getPasaportExpirationDate());
+            passenger.setBirthDate(pReq.getBirthDate());
             
-            // Yolcuyu bu rezervasyona bağla
+            // Yolcuyu bu rezervasyona bağla (Foreign Key)
             passenger.setReservationId(savedReservation.getReservationId());
 
             passengerRepository.save(passenger);
@@ -93,4 +90,10 @@ public class ReservationService {
 
         return savedReservation;
     }
+
+        
+    public List<Reservation> getReservationByUserId(Integer userId) {
+        return reservationRepository.findReservationByUserId(userId);
+    }
+
 }

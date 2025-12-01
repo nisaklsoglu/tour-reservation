@@ -134,4 +134,27 @@ public class TourPackageService {
         // 4. Güncellemeyi Kaydet
         tourPackageRepository.save(tourPackage);
     }
-}
+
+
+    public List<TourPackage> getPackagesByStartDate(java.time.LocalDate startDate) {
+        return tourPackageRepository.findPackagesByStartDate(startDate);
+    }
+
+    public List<TourPackage> getPackagesByEndDate(java.time.LocalDate endDate) {
+        return tourPackageRepository.findPackagesByEndtDate(endDate);
+    }
+
+    public List<TourPackage> getPackagesByHotelRate(Integer stars) {
+        return tourPackageRepository.findPackagesByHotelRate(stars);
+    }
+// Metodu ekle
+    public List<TourPackage> getPackagesByTourId(Integer tourId) {
+        return tourPackageRepository.findByTour_TourId(tourId);
+    }
+
+    // Kalan koltuk sayısına göre paketleri getirir
+    public List<TourPackage> getPackagesByAvailableSeats(Integer seats) {
+        return tourPackageRepository.findByAvailableSeatsGreaterThanEqual(seats);
+    }
+
+}    

@@ -27,6 +27,12 @@ public class TourPackage {
     @Column(name = "base_price")
     private BigDecimal basePrice;
 
+    @Column(name = "available_seats")
+    private Integer availableSeats;
+
+    public Integer getAvailableSeats() { return availableSeats; }
+    public void setAvailableSeats(Integer availableSeats) { this.availableSeats = availableSeats; }
+
    // ESKİSİ SİLİNDİ: private Integer guideId; 
     
     // YENİSİ: Gerçek Rehber Objesi Bağlantısı

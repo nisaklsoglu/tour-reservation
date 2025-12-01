@@ -3,6 +3,7 @@ package com.bil372.tour_reservation.service;
 import com.bil372.tour_reservation.dto.PackageCreateRequest;
 import com.bil372.tour_reservation.dto.TourCreateRequest;
 import com.bil372.tour_reservation.entity.Tour;
+import com.bil372.tour_reservation.entity.Destination; // Eklendi
 import com.bil372.tour_reservation.entity.TourDestination;
 import com.bil372.tour_reservation.entity.TourPackage;
 import com.bil372.tour_reservation.repository.DestinationRepository;
@@ -19,15 +20,12 @@ public class TourService {
 
     private final TourRepository tourRepository;
     private final TourPackageRepository tourPackageRepository;
-    private final TourDestinationRepository tourDestinationRepository;
     private final DestinationRepository destinationRepository
     ;
     public TourService(TourRepository tourRepository, TourPackageRepository tourPackageRepository,
-                       TourDestinationRepository tourDestinationRepository,
                        DestinationRepository destinationRepository) {
         this.tourRepository = tourRepository;
         this.tourPackageRepository = tourPackageRepository;
-        this.tourDestinationRepository = tourDestinationRepository;
         this.destinationRepository = destinationRepository;
     }
     
@@ -54,81 +52,104 @@ public class TourService {
         return tourRepository.findByDestinationIdSorted(destId);
     }
     @Transactional
+   
+    
     public TourPackage addPackageToExistingTour(PackageCreateRequest request) {
         
-        // Önce Turu Bul (Yoksa hata ver)
+        // 1. Önce Turu Bul
         Tour existingTour = tourRepository.findById(request.getTourId())
                 .orElseThrow(() -> new RuntimeException("Tur bulunamadı! ID: " + request.getTourId()));
 
-        // Yeni Paketi Hazırla
+        // 2. Yeni Paketi Hazırla
         TourPackage newPackage = new TourPackage();
-        newPackage.setTour(existingTour); // İlişkiyi kuruyoruz
+        newPackage.setTour(existingTour); 
         
         newPackage.setStartDate(request.getStartDate());
         newPackage.setEndDate(request.getEndDate());
         newPackage.setBasePrice(request.getBasePrice());
         newPackage.setGuideId(request.getGuideId());
-        newPackage.setBookedCount(0); // Yeni olduğu için boş
+        newPackage.setBookedCount(0); // Henüz kimse almadı
+
+        // --- YENİ EKLENEN KRİTİK KISIM ---
+        // Paketin başlangıç stoğunu, turun genel kapasitesine eşitliyoruz.
+        // Örn: Tur 40 kişilikse, paketin de 40 boş koltuğu vardır.
+        newPackage.setAvailableSeats(existingTour.getCapacity());
+        // ---------------------------------
 
         // Kaydet
         return tourPackageRepository.save(newPackage);
-
     }
-    @Transactional // Bu çok önemli! Biri hata verirse ikisi de kaydolmaz.
+
+    @Transactional 
     public Tour createTourWithPackage(TourCreateRequest request) {
         
-        // 1. Önce Genel TUR Bilgisini Oluştur ve Kaydet
+        // 1. Önce Genel TUR Bilgisini Oluştur
         Tour tour = new Tour();
         tour.setCompanyId(request.getCompanyId());
-        tour.setDestinationId(request.getDestinationId());
+        
+        // (destinationId satırı silindi, artık liste kullanıyoruz)
+        
         tour.setPackageName(request.getPackageName());
         tour.setDescription(request.getDescription());
         tour.setTourType(request.getTourType());
-        tour.setCapacity(request.getCapacity());
+        tour.setCapacity(request.getCapacity()); // Örn: 40 Kişi
         
-        // Başlangıç değerleri (Trigger bunları güncelleyecek ama boş kalmasın)
         tour.setReview_count(0); 
         tour.setAvg_rating(null);
 
-        // KAYDET (Artık tour nesnesinin bir ID'si var!)
+        // Çoklu Şehir Ekleme
+        if (request.getDestinationIds() != null && !request.getDestinationIds().isEmpty()) {
+            List<Destination> destinations = destinationRepository.findAllById(request.getDestinationIds());
+            tour.setDestinations(destinations);
+        }
+
+        // Turu Kaydet
         Tour savedTour = tourRepository.save(tour);
 
         // 2. Şimdi Bu Tura Ait İlk PAKETİ Oluştur
-        TourPackage tourPackage = new TourPackage();
-        
-        // İlişkiyi Kuruyoruz: Bu paket, az önce kaydettiğimiz tura ait.
-        tourPackage.setTour(savedTour); 
-        
-        tourPackage.setStartDate(request.getStartDate());
-        tourPackage.setEndDate(request.getEndDate());
-        tourPackage.setBasePrice(request.getBasePrice());
-        tourPackage.setGuideId(request.getGuideId());
-        tourPackage.setBookedCount(0); // Yeni paket boş başlar
-
-        // Paketi Kaydet
-        tourPackageRepository.save(tourPackage);
+        if (request.getStartDate() != null && request.getBasePrice() != null) {
+            TourPackage tourPackage = new TourPackage();
+            tourPackage.setTour(savedTour); 
+            tourPackage.setStartDate(request.getStartDate());
+            tourPackage.setEndDate(request.getEndDate());
+            tourPackage.setBasePrice(request.getBasePrice());
+            tourPackage.setGuideId(request.getGuideId());
+            tourPackage.setBookedCount(0); 
+            
+            // --- YENİ EKLENEN KRİTİK KISIM ---
+            // İlk paketin boş koltuk sayısı = Turun Kapasitesi
+            tourPackage.setAvailableSeats(savedTour.getCapacity());
+            // ---------------------------------
+            
+            tourPackageRepository.save(tourPackage);
+        }
 
         return savedTour;
     }
-    public void addDestinationToTour(Integer tourId, Integer destinationId) {
-        // Kontroller
-        if (!tourRepository.existsById(tourId)) {
-            throw new RuntimeException("Tur bulunamadı!");
-        }
-        // DestinationRepository oluşturduysan kontrol et:
-        // if (!destinationRepository.existsById(destinationId))...
+    
 
-        TourDestination td = new TourDestination();
-        td.setTourId(tourId);
-        td.setDestinationId(destinationId);
+
+    public List<Tour> getToursByCity(String keyword) {
+    return tourRepository.searchByCityOrPackageName(keyword);
+}
+    public Tour getTourById(Integer id) {
+    return tourRepository.findById(id).orElse(null);
+}
+public List<Tour> getToursByCountry(String countryName) {
+        return tourRepository.findByCountry(countryName);
+    }
+
+    // Sadece Süre Filtresi (Aralıklı)
+    public List<Tour> getToursByDuration(Integer min, Integer max) {
+        // Eğer kullanıcı boş gönderirse varsayılan değerler atayalım
+        if (min == null) min = 0;        // En az 0 gün
+        if (max == null) max = 100;      // En çok 100 gün (veya Integer.MAX_VALUE)
         
-        tourDestinationRepository.save(td);
+        return tourRepository.findByDurationBetween(min, max);
     }
+    
+    
 
-
-    public List<Tour> getToursByCity(String cityName) {
-        return tourRepository.findToursByCity(cityName);
-    }
 
 
 

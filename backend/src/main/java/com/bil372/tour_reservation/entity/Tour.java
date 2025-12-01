@@ -1,6 +1,9 @@
 package com.bil372.tour_reservation.entity;
 
 import jakarta.persistence.*;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "Tour")  // MySQL'deki tablo adı
@@ -17,8 +20,6 @@ public class Tour {
     @Column(name = "package_name")
     private String packageName;
 
-    @Column(name = "destination_id")
-    private Integer destinationId;
 
     @Column(name = "duration")
     private Integer duration;
@@ -35,6 +36,24 @@ public class Tour {
     @Column(name = "bir_kisilik_oda")
     private Integer bir_kisilik_oda;
 
+    // Tour.java içine eklenecek:
+    // Tour.java içine eklenecek:
+
+    @ManyToMany
+    @JoinTable(
+        name = "Tour_Destination", // MySQL'de oluşturduğumuz tablo adı
+        joinColumns = @JoinColumn(name = "tour_id"),
+        inverseJoinColumns = @JoinColumn(name = "destination_id")
+    )
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private List<Destination> destinations;
+
+    // Getter & Setter
+    public List<Destination> getDestinations() { return destinations; }
+    public void setDestinations(List<Destination> destinations) { this.destinations = destinations; }
+   
+
+    
     public Integer getBir_kisilik_oda() {
         return bir_kisilik_oda;
     }
@@ -96,8 +115,7 @@ public class Tour {
     public String getPackageName() { return packageName; }
     public void setPackageName(String packageName) { this.packageName = packageName; }
 
-    public Integer getDestinationId() { return destinationId; }
-    public void setDestinationId(Integer destinationId) { this.destinationId = destinationId; }
+
 
     public Integer getDuration() { return duration; }
     public void setDuration(Integer duration) { this.duration = duration; }

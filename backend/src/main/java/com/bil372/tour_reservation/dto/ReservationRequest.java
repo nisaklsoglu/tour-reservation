@@ -7,6 +7,7 @@ public class ReservationRequest {
     private Integer userId;
     private Integer packageId;
     private List<PassengerRequest> passengers; // Yolcu listesi
+    private Integer guestCount;
 
     // Getter ve Setter'lar
     public Integer getUserId() { return userId; }
@@ -17,4 +18,10 @@ public class ReservationRequest {
 
     public List<PassengerRequest> getPassengers() { return passengers; }
     public void setPassengers(List<PassengerRequest> passengers) { this.passengers = passengers; }
+
+    public Integer getGuestCount() {
+        return guestCount;
+    }public void setGuestCount(Integer guestCount) {
+        this.guestCount = guestCount;
+    }
 }

@@ -29,18 +29,26 @@ public interface TourRepository extends JpaRepository<Tour, Integer> {
     List<Tour> findByDestinationId(@Param("destId") Integer destId);
 
     // Kullanıcı "Roma" yazarsa hem Roma şehrini hem Roma ismini içeren turları bulur.
-    @Query(
-        value = """
-            SELECT DISTINCT t.* FROM Tour t
-            JOIN Tour_Destination td ON t.tour_id = td.tour_id
-            JOIN Destination d ON td.destination_id = d.destination_id
-            WHERE d.destination_city LIKE %:cityName% 
-            OR d.destination_name LIKE %:cityName%
-        """,
-        nativeQuery = true
-    )
-    List<Tour> findToursByCity(@Param("cityName") String cityName);
-
+    // MANY-TO-MANY İÇİN GÜNCELLENMİŞ SORGU:
+    // "t.destinations" diyerek Java üzerinden ilişkiye gidiyoruz.
+    // JOIN işlemi otomatik yapılıyor.
+    
+    // MANY-TO-MANY İÇİN GÜNCELLENMİŞ SORGU:
+    // "t.destinations" diyerek Java üzerinden ilişkiye gidiyoruz.
+    // JOIN işlemi otomatik yapılıyor.
+    
+    // ÇOKLU ŞEHİR ARAMA SORGUSU (JPQL)
+    // Mantık: Turun içindeki 'destinations' listesine gir (JOIN)
+    // Şehir adında (d.destinationCity) VEYA Tur adında (t.packageName) arama yap.
+    
+    // NATIVE QUERY (Garanti Yöntem)
+    // Direkt veritabanı tablolarına sorgu atıyoruz.
+    
+   @ Query("SELECT DISTINCT t FROM Tour t " +
+           "LEFT JOIN t.destinations d " +
+           "WHERE LOWER(t.packageName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+           "OR (d.destinationCity IS NOT NULL AND LOWER(d.destinationCity) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    List<Tour> searchByCityOrPackageName(@Param("keyword") String keyword);
 
     @Query(
         value = "SELECT * FROM Tour WHERE company_id = :compId",
@@ -80,4 +88,15 @@ public interface TourRepository extends JpaRepository<Tour, Integer> {
         nativeQuery = true
     )
     Long countTotalPassengersByTour(@Param("tourId") Integer tourId);
+
+// Belirli bir ÜLKEYE ait turları getir
+    @Query("SELECT DISTINCT t FROM Tour t " +
+           "JOIN t.destinations d " +
+           "WHERE LOWER(d.destinationCountry) = LOWER(:countryName)")
+    List<Tour> findByCountry(@Param("countryName") String countryName);
+    
+    List<Tour> findByDurationBetween(Integer min, Integer max);
+    
+    // (Capacity metodu kalsın, ona dokunmuyoruz)
+ 
 }

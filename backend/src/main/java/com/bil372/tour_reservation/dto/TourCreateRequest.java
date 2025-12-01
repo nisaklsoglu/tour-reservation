@@ -2,6 +2,7 @@ package com.bil372.tour_reservation.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;  
 
 public class TourCreateRequest {
     // --- TOUR Tablosu İçin ---
@@ -19,8 +20,12 @@ public class TourCreateRequest {
     private BigDecimal basePrice;
     private Integer guideId;
 
+
+    private List<Integer> destinationIds;
     // --- Getter ve Setter'lar ---
     // (Hepsini oluşturmalısın: Sağ tık -> Source Action -> Generate Getters/Setters)
+    public List<Integer> getDestinationIds() {return destinationIds;}
+    public void setDestinationIds(List<Integer> destinationIds) {  this.destinationIds = destinationIds;}
     public Integer getCompanyId() { return companyId; }
     public void setCompanyId(Integer companyId) { this.companyId = companyId; }
     // ... Diğerleri ...

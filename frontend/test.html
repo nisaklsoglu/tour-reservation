@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Profesyonel Tur Paneli</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
+        .panel { max-width: 750px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        
+        .control-group { margin-top: 15px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #555; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        
+        /* 2 Aşamalı Seçim Kutusu */
+        .selection-box { background: #eef2f3; padding: 15px; border-radius: 8px; border: 1px solid #ddd; }
+        .flex-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        
+        .btn-add { background: #007bff; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; white-space: nowrap; }
+        .btn-new { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-size: 13px; }
+        
+        /* Seçilenler */
+        .selected-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .tag { background: #d1e7dd; color: #0f5132; padding: 5px 12px; border-radius: 15px; display: flex; align-items: center; gap: 8px; font-size: 14px; border: 1px solid #badbcc; }
+        .tag-remove { cursor: pointer; color: #dc3545; font-weight: bold; }
+
+        /* Yeni Şehir Modal (Basit Gizli Div) */
+        #newCityArea { display: none; margin-top: 10px; padding: 15px; background: #fff; border: 1px dashed #007bff; border-radius: 8px; }
+        .btn-save-city { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 5px; width: 100%; margin-top: 10px; cursor: pointer; }
+
+        .btn-main-save { width: 100%; background: #28a745; color: white; padding: 15px; font-size: 18px; border: none; border-radius: 8px; margin-top: 25px; cursor: pointer; }
+        .btn-main-save:hover { background: #218838; }
+    </style>
+</head>
+<body>
+
+<div class="panel">
+    <h2>🌍 Yeni Tur Oluştur</h2>
+    
+    <div class="control-group">
+        <label>Tur Adı:</label>
+        <input type="text" id="pName" placeholder="Örn: İtalya Yazı">
+    </div>
+
+    <div class="control-group">
+        <label>Gideceği Şehirler:</label>
+        <div class="selection-box">
+            
+            <div class="flex-row">
+                <select id="countrySelect" onchange="ulkeSecildi()">
+                    <option value="">1. Önce Ülke Seçiniz...</option>
+                </select>
+                <button type="button" class="btn-new" onclick="toggleNewCity()">Yoksa Ekle ✨</button>
+            </div>
+
+            <div class="flex-row">
+                <select id="citySelect" disabled>
+                    <option value="">2. Sonra Şehir Seçiniz...</option>
+                </select>
+                <button type="button" class="btn-add" onclick="listedenEkle()">➕ Ekle</button>
+            </div>
+
+            <div id="newCityArea">
+                <strong>Yeni Destinasyon Tanımla</strong>
+                <input type="text" id="newCountry" placeholder="Ülke (Örn: İspanya)" style="margin-bottom:5px;">
+                <input type="text" id="newCity" placeholder="Şehir (Örn: Madrid)">
+                <button type="button" class="btn-save-city" onclick="yeniDestinasyonKaydet()">Veritabanına Kaydet</button>
+            </div>
+
+            <div id="selectedContainer" class="selected-tags"></div>
+        </div>
+    </div>
+
+    <input type="hidden" id="cId" value="1">
+    <div class="control-group">
+        <label>Fiyat (TL):</label> <input type="number" id="price" value="20000">
+    </div>
+    <div class="control-group" style="display:flex; gap:10px;">
+        <div style="flex:1"><label>Başlangıç:</label><input type="date" id="startDate"></div>
+        <div style="flex:1"><label>Bitiş:</label><input type="date" id="endDate"></div>
+    </div>
+    <div class="control-group">
+        <label>Açıklama:</label> <textarea id="desc" rows="2"></textarea>
+    </div>
+
+    <button class="btn-main-save" onclick="turuKaydet()">💾 Turu Oluştur</button>
+</div>
+
+<script>
+    const API_BASE = "http://localhost:8080/api";
+    let selectedIds = [];
+
+    // 1. Sayfa Açılınca ÜLKELERİ Getir
+    fetch(`${API_BASE}/destinations/countries`)
+        .then(res => res.json())
+        .then(countries => {
+            const select = document.getElementById("countrySelect");
+            countries.forEach(country => {
+                const opt = document.createElement("option");
+                opt.value = country;
+                opt.text = country;
+                select.appendChild(opt);
+            });
+        });
+
+    // 2. Ülke Seçilince ŞEHİRLERİ Getir
+    function ulkeSecildi() {
+        const country = document.getElementById("countrySelect").value;
+        const citySelect = document.getElementById("citySelect");
+        
+        citySelect.innerHTML = '<option value="">Yükleniyor...</option>';
+        citySelect.disabled = true;
+
+        if(!country) return;
+
+        fetch(`${API_BASE}/destinations/cities/${country}`)
+            .then(res => res.json())
+            .then(cities => {
+                citySelect.innerHTML = '<option value="">Şehir Seçiniz...</option>';
+                cities.forEach(city => {
+                    const opt = document.createElement("option");
+                    opt.value = city.destinationId;
+                    opt.text = city.destinationCity || city.destinationName;
+                    citySelect.appendChild(opt);
+                });
+                citySelect.disabled = false;
+            });
+    }
+
+    // 3. Listeden Şehir Ekle
+    function listedenEkle() {
+        const select = document.getElementById("citySelect");
+        const id = parseInt(select.value);
+        const name = select.options[select.selectedIndex].text;
+        const country = document.getElementById("countrySelect").value;
+
+        if(!id) { alert("Şehir seçmediniz!"); return; }
+        
+        tagEkle(id, `${name} (${country})`);
+    }
+
+    // 4. Görsel Tag Ekleme
+    function tagEkle(id, text) {
+        if(selectedIds.includes(id)) { alert("Zaten ekli!"); return; }
+        selectedIds.push(id);
+
+        const div = document.createElement("div");
+        div.className = "tag";
+        div.innerHTML = `📍 ${text} <span class="tag-remove" onclick="tagSil(${id}, this)">×</span>`;
+        document.getElementById("selectedContainer").appendChild(div);
+    }
+
+    function tagSil(id, elem) {
+        selectedIds = selectedIds.filter(x => x !== id);
+        elem.parentElement.remove();
+    }
+
+    // 5. Yeni Şehir Formu Aç/Kapa
+    function toggleNewCity() {
+        const div = document.getElementById("newCityArea");
+        div.style.display = div.style.display === "block" ? "none" : "block";
+    }
+
+    // 6. YENİ ŞEHİR KAYDET (DB'ye gider, sonra listeye ekler)
+    function yeniDestinasyonKaydet() {
+        const country = document.getElementById("newCountry").value;
+        const city = document.getElementById("newCity").value;
+
+        if(!country || !city) { alert("Ülke ve Şehir giriniz!"); return; }
+
+        const data = { destinationCountry: country, destinationCity: city, destinationName: city + " Merkez" };
+
+        fetch(`${API_BASE}/destinations/create`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(saved => {
+            alert("Yeni yer kaydedildi! Listeye eklendi.");
+            // Otomatik olarak seçilenlere ekle
+            tagEkle(saved.destinationId, `${saved.destinationCity} (${saved.destinationCountry})`);
+            
+            // Formu temizle ve kapat
+            document.getElementById("newCityArea").style.display = "none";
+            
+            // Eğer ülke listesinde bu ülke yoksa, sayfayı yenilemeden oraya da ekleyebiliriz ama şimdilik gerek yok.
+        })
+        .catch(err => alert("Hata oluştu!"));
+    }
+
+    // 7. ANA KAYIT (Turu Kaydet)
+    function turuKaydet() {
+        if(selectedIds.length === 0) { alert("En az bir şehir seçin!"); return; }
+
+        const data = {
+            companyId: 1,
+            packageName: document.getElementById("pName").value,
+            destinationIds: selectedIds, // Listemiz gidiyor
+            basePrice: document.getElementById("price").value,
+            description: document.getElementById("desc").value,
+            tourType: "Kültür",
+            capacity: 20,
+            startDate: document.getElementById("startDate").value || "2025-09-01",
+            endDate: document.getElementById("endDate").value || "2025-09-08",
+            guideId: 1
+        };
+
+        fetch(`${API_BASE}/tours/create`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(d => alert("✅ Tur Başarıyla Oluşturuldu!"))
+        .catch(e => alert("Hata!"));
+    }
+</script>
+
+</body>
+</html>

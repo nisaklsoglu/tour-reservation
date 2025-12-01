@@ -1,7 +1,11 @@
 package com.bil372.tour_reservation.service;
 
+import com.bil372.tour_reservation.entity.Tour;
 //import com.bil372.tour_reservation.entity.Review;
 import com.bil372.tour_reservation.repository.ReviewRepository;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 //import java.util.List;
@@ -16,5 +20,7 @@ public class ReviewService {
     }
 
     
-
 }
+
+    
+

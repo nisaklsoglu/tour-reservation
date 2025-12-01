@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Turlar & Paketler</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; display: flex; min-height: 100vh; margin: 0; background-color: #f4f4f4; }
+        
+        /* Sol Sidebar (Filtreler) */
+        .sidebar { width: 300px; background: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+        .sidebar h3 { color: #333; margin-top: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .filter-group { margin-bottom: 15px; }
+        .filter-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        .filter-group input, .filter-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
+        
+        .btn-filter { width: 100%; padding: 10px; background: #27ae60; color: white; border: none; cursor: pointer; border-radius: 5px; margin-top: 5px; }
+        .btn-reset { width: 100%; padding: 10px; background: #e74c3c; color: white; border: none; cursor: pointer; border-radius: 5px; margin-top: 5px; }
+
+        /* Sağ Taraf (Sonuçlar) */
+        .content { flex: 1; padding: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        
+        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .price { font-size: 18px; color: #e67e22; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>🔍 Filtrele</h2>
+        <a href="index.html">← Ana Sayfaya Dön</a>
+        <hr>
+
+        <div class="filter-group">
+            <h3>🌍 Destinasyon</h3>
+            
+            <label>1. Ülke Seç:</label>
+            <select id="filterCountry" onchange="ulkeFiltresiSecildi()">
+                <option value="">Tümü</option>
+            </select>
+
+            <label style="margin-top:10px;">2. Şehir Seç:</label>
+            <select id="filterCity" disabled>
+                <option value="">Önce Ülke Seç...</option>
+            </select>
+
+            <button class="btn-filter" onclick="destinasyonFiltrele()">🔍 Ara</button>
+        </div>
+
+        <div class="filter-group">
+            <h3>💰 Fiyat Aralığı</h3>
+            <label>Min TL</label>
+            <input type="number" id="minPrice" placeholder="0">
+            <label>Max TL</label>
+            <input type="number" id="maxPrice" placeholder="10000">
+            <button class="btn-filter" onclick="fiyataGoreGetir()">Filtrele</button>
+        </div>
+
+        <div class="filter-group">
+            <h3>🔃 Sırala</h3>
+            <button class="btn-filter" style="background:#3498db" onclick="fiyatSirala('asc')">Fiyat: Artan ⬆️</button>
+            <button class="btn-filter" style="background:#3498db" onclick="fiyatSirala('desc')">Fiyat: Azalan ⬇️</button>
+        </div>
+
+        <button class="btn-reset" onclick="tumTurlariGetir()">🔄 Filtreleri Temizle</button>
+
+        <div class="filter-group">
+            <h3>⏳ Tur Süresi (Gün)</h3>
+            <div style="display:flex; gap:5px; align-items: center;">
+                <input type="number" id="minDur" placeholder="Min" style="width:40%;">
+                <span>-</span>
+                <input type="number" id="maxDur" placeholder="Max" style="width:40%;">
+            </div>
+            <button class="btn-filter" style="margin-top:5px;" onclick="sureyeGoreAra()">Ara</button>
+        </div>
+
+        <div class="filter-group">
+            <h3>👥 Kişi Sayısı</h3>
+            <label>Kaç Kişisiniz?</label>
+            <div style="display:flex; gap:5px;">
+                <input type="number" id="inputGuests" placeholder="Örn: 3">
+                <button class="btn-filter" style="background:#e67e22;" onclick="kapasiteyeGoreAra()">Ara</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h1 id="page-title">Tüm Turlar</h1>
+        <div id="results-grid" class="grid">
+            <p>Yükleniyor...</p>
+        </div>
+    </div>
+
+    <script src="tours.js"></script>
+</body>
+</html>

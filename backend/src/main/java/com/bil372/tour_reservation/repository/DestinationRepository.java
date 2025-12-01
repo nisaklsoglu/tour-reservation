@@ -14,4 +14,6 @@ public interface DestinationRepository extends JpaRepository<Destination, Intege
 
     // Belirli ülkeye ait destinasyonlar
     List<Destination> findByDestinationCountryOrderByDestinationCityAsc(String destinationCountry);
+
+    Destination findByDestinationCityAndDestinationCountry(String city, String country);
 }

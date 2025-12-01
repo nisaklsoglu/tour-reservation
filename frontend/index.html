@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tur Rezervasyon - Ana Sayfa</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; }
+        
+        /* Hero (Kapak) Bölümü */
+        .hero { background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://source.unsplash.com/1600x900/?travel,nature'); background-size: cover; height: 400px; display: flex; align-items: center; justify-content: center; color: white; flex-direction: column; text-align: center; }
+        .hero h1 { font-size: 3rem; margin: 0; }
+        .hero button { margin-top: 20px; padding: 15px 30px; font-size: 1.2rem; background: #e67e22; border: none; color: white; cursor: pointer; border-radius: 5px; }
+        .hero button:hover { background: #d35400; }
+
+        /* Konteyner */
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        
+        /* Kartlar */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); }
+        .card-body { padding: 20px; }
+        .card h3 { margin: 0 0 10px; }
+        .btn-detail { display: block; width: 100%; padding: 10px; background: #007bff; color: white; text-align: center; text-decoration: none; border-radius: 5px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="hero">
+        <h1>Hayalindeki Tatili Keşfet 🌍</h1>
+        <p>En iyi fiyatlar ve unutulmaz deneyimler.</p>
+        <button onclick="window.location.href='tours.html'">Tüm Turları İncele 🚀</button>
+    </div>
+
+    <div class="container">
+        <h2>🔥 En Yüksek Puanlı Turlar</h2>
+        <div class="grid" id="top-rated-list">
+            <p>Yükleniyor...</p>
+        </div>
+    </div>
+
+    <script>
+        // En yüksek puanlı turları çek
+        fetch("http://localhost:8080/api/tours/top-rated")
+            .then(res => res.json())
+            .then(data => {
+                const liste = document.getElementById("top-rated-list");
+                liste.innerHTML = "";
+                data.slice(0, 3).forEach(tour => { // Sadece ilk 3 tanesini göster
+                    liste.innerHTML += `
+                        <div class="card">
+                            <div class="card-body">
+                                <h3>${tour.packageName}</h3>
+                                <p>⭐ Puan: ${tour.avg_rating || 'Yeni'}</p>
+                                <p>${tour.description.substring(0, 80)}...</p>
+                                <a href="detail.html?id=${tour.tourId}" class="btn-detail">İncele</a>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+    </script>
+</body>
+</html>

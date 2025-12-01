@@ -69,4 +69,30 @@ public class TourPackageController {
     }
 
 
+
+    @GetMapping("/by-start-date")
+    public List<TourPackage> getPackagesByStartDate(@RequestParam("start") String startDate) {
+        return tourPackageService.getPackagesByStartDate(java.time.LocalDate.parse(startDate));
+    }      
+    
+    @GetMapping("/by-end-date")
+    public List<TourPackage> getPackagesByEndDate(@RequestParam("end") String endDate) {
+        return tourPackageService.getPackagesByEndDate(java.time.LocalDate.parse(endDate));
+    }
+
+    @GetMapping("/by-hotel-rate")
+    public List<TourPackage> getPackagesByHotelRate(@RequestParam("stars") Integer stars) {
+        return tourPackageService.getPackagesByHotelRate(stars);
+    }
+    // Endpoint'i ekle
+    // Adres: /api/tour-packages/by-tour/1
+    @GetMapping("/by-tour/{tourId}")
+    public List<TourPackage> getPackagesByTourId(@PathVariable Integer tourId) {
+        return tourPackageService.getPackagesByTourId(tourId);
+    }
+    // Endpoint: /api/tour-packages/by-availability?seats=3
+    @GetMapping("/by-availability")
+    public List<TourPackage> getPackagesByAvailability(@RequestParam("seats") Integer seats) {
+        return tourPackageService.getPackagesByAvailableSeats(seats);
+    }
 }

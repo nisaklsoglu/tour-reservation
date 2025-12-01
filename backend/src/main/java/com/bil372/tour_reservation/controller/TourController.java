@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tours")
+@CrossOrigin(origins = "*")
 public class TourController {
 
     private final TourService tourService;
@@ -67,17 +68,49 @@ public class TourController {
         return ResponseEntity.ok(createdPackage);
     }
 
-    @PostMapping("/{tourId}/add-destination/{destId}")
-    public ResponseEntity<String> addDestination(@PathVariable Integer tourId, @PathVariable Integer destId) {
-        tourService.addDestinationToTour(tourId, destId);
-        return ResponseEntity.ok("Destinasyon tura eklendi! 🌍");
+  // Endpoint: /api/tours/by-country/Fransa
+    @GetMapping("/by-country/{countryName}")
+    public List<Tour> getToursByCountry(@PathVariable String countryName) {
+        return tourService.getToursByCountry(countryName);
     }
+    
 
     // TourController.java içine:
 
     // Örnek: http://localhost:8080/api/tours/search-city/Paris
-    @GetMapping("/search-city/{cityName}")
-    public List<Tour> getToursByCity(@PathVariable String cityName) {
+    @GetMapping("/search-city/{cityName}") 
+    public List<Tour> getToursByCity(@PathVariable("cityName") String cityName) {
+        // Log koyalım ki çalıştığını konsolda görelim
+        System.out.println("📢 ARAMA YAPILIYOR: " + cityName); 
         return tourService.getToursByCity(cityName);
     }
+    // TEK BİR TUR GETİRME METODU (Bunu eklemezsen detay sayfası çalışmaz)
+    @GetMapping("/{id}")
+    public ResponseEntity<Tour> getTourById(@PathVariable Integer id) {
+        // Servisten turu iste
+        Tour tour = tourService.getTourById(id);
+        
+        // Eğer tur varsa döndür
+        if (tour != null) {
+            return ResponseEntity.ok(tour);
+        } else {
+            // Yoksa 404 (Bulunamadı) hatası ver
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Endpoint 1: /api/tours/by-duration?days=7
+    // Endpoint: /api/tours/by-duration?min=3&max=7
+    @GetMapping("/by-duration")
+    public List<Tour> getToursByDuration(
+            @RequestParam(value = "min", required = false) Integer min,
+            @RequestParam(value = "max", required = false) Integer max) {
+        
+        return tourService.getToursByDuration(min, max);
+    }
+
+  
+
+
+    
 }

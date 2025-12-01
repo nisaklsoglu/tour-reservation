@@ -82,5 +82,46 @@ public interface TourPackageRepository extends JpaRepository<TourPackage, Intege
         nativeQuery = true
     )
     List<TourPackage> findPackagesByHotelName(@Param("hotelName") String hotelName);
+    // belirtilen başlangıç tarihinden sonraki tur paketlerini getiren sorgu
+    @Query(
+        value = "SELECT * FROM Tour_Package WHERE start_date >= :startDate",
+        nativeQuery = true
+    )
+    List<TourPackage> findPackagesByStartDate(
+            @Param("startDate") LocalDate startDate
+    );
+
+    //belirtilen bitiş tarihinden önceki tur paketlerini getiren sorgu
+    @Query(
+        value = "SELECT * FROM Tour_Package WHERE end_date <= :endDate",
+        nativeQuery = true
+    )
+    List<TourPackage> findPackagesByEndtDate(
+            @Param("endDate") LocalDate endDate
+    );     
+    
+    
+    @Query(
+    value = """
+        SELECT DISTINCT tp.*             
+        FROM tour_package tp             
+        
+        JOIN hotel_package hp             
+            ON tp.package_id = hp.package_id
+        
+        JOIN hotel h                      
+            ON hp.hotel_id = h.hotel_id
+        
+        WHERE h.hotel_rate = :stars      
+        """,
+        nativeQuery = true
+   )
+    List<TourPackage> findPackagesByHotelRate(@Param("stars") Integer stars);
+
+    List<TourPackage> findByTour_TourId(Integer tourId);
+
+    List<TourPackage> findByAvailableSeatsGreaterThanEqual(Integer seatsNeeded);
+
+    
 
 }
