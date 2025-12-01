@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Güvenli Ödeme</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .payment-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 400px; }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        .amount-display { text-align: center; font-size: 24px; color: #27ae60; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        label { display: block; margin-top: 10px; font-weight: bold; color: #555; }
+        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        
+        .row { display: flex; gap: 10px; }
+        
+        .btn-pay { width: 100%; background: #2c3e50; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 18px; margin-top: 25px; cursor: pointer; transition: 0.3s; }
+        .btn-pay:hover { background: #34495e; }
+    </style>
+</head>
+<body>
+
+    <div class="payment-card">
+        <h2>💳 Güvenli Ödeme</h2>
+        <div class="amount-display" id="displayAmount">0.00 TL</div>
+
+        <form onsubmit="return false;">
+            <label>Kart Üzerindeki İsim</label>
+            <input type="text" id="cardName" placeholder="Ad Soyad">
+
+            <label>Kart Numarası</label>
+            <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
+
+            <div class="row">
+                <div style="flex:1">
+                    <label>Son Kullanma</label>
+                    <input type="text" id="cardExp" placeholder="AA/YY" maxlength="5">
+                </div>
+                <div style="flex:1">
+                    <label>CVV</label>
+                    <input type="text" id="cardCvv" placeholder="123" maxlength="3">
+                </div>
+            </div>
+
+            <button class="btn-pay" onclick="odemeyiTamamla()">Ödemeyi Onayla</button>
+        </form>
+    </div>
+
+    <script>
+        // URL'den Rezervasyon ID ve Tutarı Al
+        const urlParams = new URLSearchParams(window.location.search);
+        const reservationId = urlParams.get('resId');
+        // Tutar verisi yoksa veya null ise 0 göster
+        const amount = urlParams.get('amount');
+
+        document.getElementById("displayAmount").innerText = amount ? `${amount} TL` : "Hesaplanıyor...";
+
+        function odemeyiTamamla() {
+            if(!document.getElementById("cardNumber").value) {
+                alert("Lütfen kart bilgilerini giriniz!");
+                return;
+            }
+
+            const data = {
+                reservationId: parseInt(reservationId),
+                amount: parseFloat(amount),
+                cardHolderName: document.getElementById("cardName").value,
+                cardNumber: document.getElementById("cardNumber").value,
+                expireDate: document.getElementById("cardExp").value,
+                cvv: document.getElementById("cardCvv").value
+            };
+
+            const btn = document.querySelector(".btn-pay");
+            btn.innerText = "İşleniyor...";
+            btn.disabled = true;
+
+            fetch("http://localhost:8080/api/payments/pay", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+            .then(res => {
+                if(!res.ok) throw new Error("Ödeme alınamadı!");
+                return res.json();
+            })
+            .then(d => {
+                alert("✅ Ödeme Başarılı! İyi Tatiller! 🏖️");
+                window.location.href = "index.html"; // Ana sayfaya yönlendir
+            })
+            .catch(e => {
+                alert("Hata: " + e.message);
+                btn.innerText = "Tekrar Dene";
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>

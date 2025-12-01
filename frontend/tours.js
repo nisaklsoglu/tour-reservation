@@ -283,51 +283,53 @@ function fiyatSirala(yon) {
 // ORTAK KART ÇİZME FONKSİYONU
 // ---------------------------------------------
 // ORTAK KART ÇİZME FONKSİYONU
+// ORTAK KART ÇİZME FONKSİYONU (GÜNCELLENMİŞ)
 function renderCards(data, type) {
     grid.innerHTML = "";
 
-    // Eğer veri yoksa veya boşsa uyarı ver
     if (!data || data.length === 0) {
         grid.innerHTML = "<p>⚠️ Kriterlere uygun sonuç bulunamadı.</p>";
         return;
     }
 
     data.forEach(item => {
-        let name, price, desc, id;
+        let name, priceText, desc, id, detailId;
 
-        // Backend'den gelen veri "Tour" mu yoksa "TourPackage" mi?
+        // --- 1. TUR İSE (Genel Vitrin) ---
         if (type === "tour") {
-            // --- TOUR İSE ---
             id = item.tourId;
             name = item.packageName;
-            price = item.bir_kisilik_oda; 
             desc = item.description;
-        } else {
-            // --- PACKAGE İSE ---
-            id = item.packageId; 
             
-            // Paketin içindeki tur ismini al (Yoksa varsayılan yaz)
+            // Turlarda fiyat gösterme (Detayda pakete göre değişecek)
+            priceText = "Tarih Seçiniz 📅"; 
+            
+            detailId = id;
+        } 
+        // --- 2. PAKET İSE (Filtrelenmiş Sonuç) ---
+        else {
+            id = item.packageId;
             name = item.tour ? item.tour.packageName : "Özel Tur Paketi";
             
-            // 🔴 HATA BURADAYDI! DÜZELTİLDİ:
-            // Backend 'basePrice' gönderiyor, biz 'price' arıyorduk.
-            price = item.basePrice; 
+            // Pakette kesin fiyat vardır, onu göster
+            const price = item.basePrice; 
+            priceText = price ? `${price} TL` : "Fiyat Sorunuz";
             
             desc = `📅 Tarih: ${item.startDate} - ${item.endDate}`;
+            detailId = item.tour ? item.tour.tourId : 1;
         }
-
-        // Fiyatı formatla (undefined yazmasın)
-        const priceText = price ? `${price} TL` : "Fiyat Bilgisi Yok";
-
-        // Detay linki için ID ayarı:
-        // Eğer paketse, detay sayfasına paketin bağlı olduğu Turun ID'sini gönderelim
-        const detailId = (type === 'tour') ? id : (item.tour ? item.tour.tourId : 1);
 
         const cardHTML = `
             <div class="card">
                 <h3>${name}</h3>
-                <p class="price">${priceText}</p>
-                <p style="color:#666; font-size:0.9em;">${desc ? desc.substring(0, 100) : ''}...</p>
+                
+                <p class="price" style="font-size:18px; font-weight:bold; color:#e67e22;">
+                    ${priceText}
+                </p>
+                
+                <p style="color:#666; font-size:0.9em;">
+                    ${desc ? desc.substring(0, 100) : ''}...
+                </p>
                 
                 <a href="detail.html?id=${detailId}" 
                    style="display:inline-block; margin-top:10px; padding:8px 15px; background:#007bff; color:white; text-decoration:none; border-radius:4px;">
