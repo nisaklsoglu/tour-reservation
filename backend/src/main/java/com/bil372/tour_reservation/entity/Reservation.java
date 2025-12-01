@@ -55,6 +55,13 @@ public class Reservation {
     // public void setTourPackage(TourPackage tourPackage) {
     //     this.tourPackage = tourPackage;
     // }
+    public TourPackage getTourPackage() {
+        return tourPackage;
+    }
+
+    public void setTourPackage(TourPackage tourPackage) {
+        this.tourPackage = tourPackage;
+    }
 
 
     public LocalDate getReservationDate() {
@@ -80,4 +87,5 @@ public class Reservation {
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
     }
+    
 }

@@ -43,6 +43,14 @@ public class Tour {
     }
     @Column(name = "iki_kisilik_oda")
     private Integer iki_kisilik_oda;
+    @Column(name = "review_count")
+    private Integer review_count;
+    public Integer getReview_count() {
+        return review_count;
+    }
+    public void setReview_count(Integer review_count) {
+        this.review_count = review_count;
+    }
 
     public Integer getIki_kisilik_oda() {
         return iki_kisilik_oda;
@@ -102,4 +110,7 @@ public class Tour {
 
     public Integer getCapacity() { return capacity; }
     public void setCapacity(Integer capacity) { this.capacity = capacity; }
+
+    
+    
 }

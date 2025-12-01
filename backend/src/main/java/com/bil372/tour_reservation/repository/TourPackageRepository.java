@@ -49,4 +49,38 @@ public interface TourPackageRepository extends JpaRepository<TourPackage, Intege
             @Param("endDate") java.time.LocalDate endDate
     );
 
+    @Query(
+        value = """
+            SELECT DISTINCT tp.* FROM Tour_Package tp
+            JOIN Flight_Package fp ON tp.package_id = fp.package_id
+            JOIN Flight f ON fp.flight_id = f.flight_id
+            WHERE f.firma = :airlineName
+        """,
+        nativeQuery = true
+    )
+    List<TourPackage> findPackagesByAirline(@Param("airlineName") String airlineName);
+
+    
+    @Query(
+        value = """
+            SELECT DISTINCT tp.* FROM Tour_Package tp
+            JOIN Flight_Package fp ON tp.package_id = fp.package_id
+            JOIN Flight f ON fp.flight_id = f.flight_id
+            WHERE f.kalkis_konumu = :airportCode
+        """,
+        nativeQuery = true
+    )
+    List<TourPackage> findPackagesByDepartureAirport(@Param("airportCode") String airportCode);
+    // İsmi verilen oteli içeren paketleri getir (Arama kelimesini içerenler)
+    @Query(
+        value = """
+            SELECT DISTINCT tp.* FROM Tour_Package tp
+            JOIN Hotel_Package hp ON tp.package_id = hp.package_id
+            JOIN Hotel h ON hp.hotel_id = h.hotel_id
+            WHERE h.hotel_name LIKE %:hotelName%
+        """,
+        nativeQuery = true
+    )
+    List<TourPackage> findPackagesByHotelName(@Param("hotelName") String hotelName);
+
 }

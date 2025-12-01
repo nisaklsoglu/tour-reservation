@@ -21,5 +21,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
     )
     List<Reservation> findReservationsByUserId(@Param("userId") Integer userId);
 
+    @Query(
+        value = """
+            SELECT COUNT(p.passenger_id) 
+            FROM Passenger p
+            JOIN Reservation r ON p.reservation_id = r.reservation_id
+            WHERE r.package_id = :packageId 
+            AND r.status != 'Iptal'
+        """,
+        nativeQuery = true
+    )
+    int countPassengersInPackage(@Param("packageId") Integer packageId);
    
 }
