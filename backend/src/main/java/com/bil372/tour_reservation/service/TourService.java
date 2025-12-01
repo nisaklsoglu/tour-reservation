@@ -2,6 +2,7 @@ package com.bil372.tour_reservation.service;
 
 import com.bil372.tour_reservation.dto.PackageCreateRequest;
 import com.bil372.tour_reservation.dto.TourCreateRequest;
+import com.bil372.tour_reservation.dto.TourSearchDto;
 import com.bil372.tour_reservation.entity.Tour;
 import com.bil372.tour_reservation.entity.Destination; // Eklendi
 import com.bil372.tour_reservation.entity.TourDestination;
@@ -13,6 +14,8 @@ import com.bil372.tour_reservation.repository.TourRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -149,6 +152,56 @@ public List<Tour> getToursByCountry(String countryName) {
     }
     
     
+
+    public List<TourSearchDto> searchTours(
+            String country,
+            String city,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Integer minDur,
+            Integer maxDur,
+            Integer guests,
+            String sort
+    ) {
+        // 1) Repository'den filtrelenmiş veriyi al
+        List<TourPackage> list = tourPackageRepository.searchByFilters(
+                country, city, minPrice, maxPrice, minDur, maxDur, guests
+        );
+
+        // 2) Sıralama uygula
+        if ("priceAsc".equalsIgnoreCase(sort)) {
+            list.sort(Comparator.comparing(TourPackage::getBasePrice));
+        } else if ("priceDesc".equalsIgnoreCase(sort)) {
+            list.sort(Comparator.comparing(TourPackage::getBasePrice).reversed());
+        }
+
+        // 3) DTO'ya map et
+        return list.stream()
+                   .map(this::toDtoFromPackage)
+                   .toList();
+    }
+
+    private TourSearchDto toDtoFromPackage(TourPackage tp) {
+    Destination d = tp.getTour() != null && tp.getTour().getDestinations() != null && !tp.getTour().getDestinations().isEmpty()
+                    ? tp.getTour().getDestinations().get(0)
+                    : null;
+
+    TourSearchDto dto = new TourSearchDto();
+    dto.setTourId(tp.getPackageId());
+    dto.setBasePrice(tp.getBasePrice());
+    // packageName/description live on the parent Tour entity
+    if (tp.getTour() != null) {
+        dto.setPackageName(tp.getTour().getPackageName());
+        dto.setDescription(tp.getTour().getDescription());
+    }
+    dto.setStartDate(tp.getStartDate());
+    dto.setEndDate(tp.getEndDate());
+    if (d != null) {
+        dto.setCountry(d.getDestinationCountry());
+        dto.setCity(d.getDestinationCity());
+    }
+    return dto;
+}
 
 
 

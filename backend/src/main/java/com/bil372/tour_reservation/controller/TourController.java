@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.math.BigDecimal;
+import com.bil372.tour_reservation.dto.TourSearchDto;
 
 @RestController
 @RequestMapping("/api/tours")
@@ -83,6 +85,20 @@ public class TourController {
         // Log koyalım ki çalıştığını konsolda görelim
         System.out.println("📢 ARAMA YAPILIYOR: " + cityName); 
         return tourService.getToursByCity(cityName);
+    }
+
+    @GetMapping("/search")
+    public List<TourSearchDto> search(
+            @RequestParam(value = "country", required = false) String country,
+            @RequestParam(value = "city", required = false) String city,
+            @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
+            @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
+            @RequestParam(value = "minDur", required = false) Integer minDur,
+            @RequestParam(value = "maxDur", required = false) Integer maxDur,
+            @RequestParam(value = "guests", required = false) Integer guests,
+            @RequestParam(value = "sort", required = false) String sort
+    ) {
+        return tourService.searchTours(country, city, minPrice, maxPrice, minDur, maxDur, guests, sort);
     }
     // TEK BİR TUR GETİRME METODU (Bunu eklemezsen detay sayfası çalışmaz)
     @GetMapping("/{id}")
