@@ -124,12 +124,36 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
         }
         localStorage.setItem("isLoggedIn", "true");
 
-        msg.textContent = "Giriş başarılı! Yönlendiriliyorsunuz...";
+        // Buradan sonra: bu user şirket mi diye backend'e sor
+        try {
+            const resCompany = await fetch(`${API_BASE}/company/by-user/${data.id}`);
+            if (resCompany.ok) {
+                const company = await resCompany.json();
+                // Bu user aynı zamanda company
+                localStorage.setItem("companyId", company.id);
+                localStorage.setItem("isCompany", "true");
+
+                msg.textContent = "Şirket olarak giriş yapıldı. Panel yükleniyor...";
+                msg.classList.add("success");
+
+                setTimeout(() => {
+                    window.location.href = "company.html"; // şirket paneli
+                }, 1000);
+
+                return; // buradan sonra index'e gitmesin
+            }
+        } catch (err) {
+            console.warn("Company check error:", err);
+        }
+
+        // Eğer buraya geldiysek ya company yok ya da hata oldu → normal user gibi davran
+        msg.textContent = "Giriş başarılı! Ana sayfaya yönlendiriliyorsunuz...";
         msg.classList.add("success");
 
         setTimeout(() => {
             window.location.href = "index.html";
         }, 1000);
+
 
     } catch (err) {
         console.error("Login fetch error:", err);
