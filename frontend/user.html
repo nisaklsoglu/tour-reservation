@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Kullanıcı - Rezervasyonlarım</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background:#f6f8fb }
+        header { display:flex; align-items:center; justify-content:space-between; }
+        .profile { display:flex; align-items:center; gap:10px }
+        .card { background:white; border-radius:8px; padding:15px; box-shadow:0 2px 6px rgba(0,0,0,0.08); margin-bottom:12px }
+        .grid { max-width:900px; margin-top:20px }
+        .muted { color:#666 }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>Hesabım</h1>
+            <p class="muted">Rezervasyonlarım</p>
+        </div>
+        <div class="profile">
+            <img src="https://i.pravatar.cc/60" alt="profile" style="border-radius:50%; width:60px; height:60px;">
+            <div>
+                <div style="font-weight:600">Test Kullanıcı</div>
+                <div class="muted" style="font-size:0.9em">user@example.com</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="grid" id="reservations-container">
+        <p>Yükleniyor...</p>
+    </main>
+
+    <script src="user.js"></script>
+</body>
+</html>

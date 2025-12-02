@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Giriş Yap</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 60px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        .btn-primary {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #007bff;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn-primary:hover { background: #0056b3; }
+        .message {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .message.error { color: #e74c3c; }
+        .message.success { color: #27ae60; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Giriş Yap</h2>
+
+    <!-- DİKKAT: id'ler scriptle aynı -->
+    <form id="login-form">
+        <label for="email">E-posta</label>
+        <input type="email" id="email" required placeholder="ornek@mail.com">
+
+        <label for="password">Şifre</label>
+        <input type="password" id="password" required placeholder="••••••••">
+
+        <button class="btn-primary" type="submit">Giriş Yap</button>
+    </form>
+
+    <div id="msg" class="message"></div>
+</div>
+
+<script>
+const API_BASE = "http://localhost:8080/api";
+
+document.getElementById("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const msg = document.getElementById("msg");
+    msg.textContent = "";
+    msg.className = "message";
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+        msg.textContent = "Lütfen tüm alanları doldurun.";
+        msg.classList.add("error");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const text = await res.text();
+
+        if (!res.ok) {
+            msg.textContent = text || "Giriş başarısız.";
+            msg.classList.add("error");
+            console.error("Login error response:", res.status, text);
+            return;
+        }
+
+        let data = null;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.warn("JSON parse edilemedi, gelen cevap:", text);
+        }
+
+        if (data && data.id) {
+            localStorage.setItem("userId", data.id);
+            localStorage.setItem("userEmail", data.email);
+        }
+        localStorage.setItem("isLoggedIn", "true");
+
+        msg.textContent = "Giriş başarılı! Yönlendiriliyorsunuz...";
+        msg.classList.add("success");
+
+        setTimeout(() => {
+            window.location.href = "index.html";
+        }, 1000);
+
+    } catch (err) {
+        console.error("Login fetch error:", err);
+        msg.textContent = "Sunucu hatası veya backend kapalı olabilir.";
+        msg.classList.add("error");
+    }
+});
+</script>
+
+</body>
+</html>

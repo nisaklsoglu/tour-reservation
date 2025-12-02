@@ -31,4 +31,21 @@ public class UserService {
         // DB'ye kaydet
         return userRepository.save(user);
     }
+
+    public User login(String email, String password) {
+
+    User user = userRepository.findByEmail(email).orElse(null);
+
+    if (user == null) {
+        return null;
+    }
+
+    // plain text password kontrolü
+    if (!user.getPassword().equals(password)) {
+        return null;
+    }
+
+    return user;
+}
+
 }
