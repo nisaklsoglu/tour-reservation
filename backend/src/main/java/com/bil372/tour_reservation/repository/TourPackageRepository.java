@@ -121,7 +121,11 @@ public interface TourPackageRepository extends JpaRepository<TourPackage, Intege
     List<TourPackage> findByTour_TourId(Integer tourId);
 
     List<TourPackage> findByAvailableSeatsGreaterThanEqual(Integer seatsNeeded);
+   @Query("SELECT p FROM TourPackage p WHERE p.tour.tourId = :tourId AND p.basePrice BETWEEN :min AND :max")
+    List<TourPackage> findByTourAndPriceRange(Integer tourId, BigDecimal min, BigDecimal max);
 
+    @Query("SELECT p FROM TourPackage p WHERE p.tour.tourId = :tourId AND p.availableSeats >= :seats")
+    List<TourPackage> findByTourAndAvailability(Integer tourId, Integer seats);
     
 
 }
