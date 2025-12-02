@@ -9,7 +9,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")   // PK kolon adı
-    private Long id;
+    private Integer id;
 
     @Column(name = "user_mail", nullable = false, unique = true, length = 100)
     private String email;
@@ -19,11 +19,11 @@ public class User {
 
     // ----- Getter & Setter -----
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

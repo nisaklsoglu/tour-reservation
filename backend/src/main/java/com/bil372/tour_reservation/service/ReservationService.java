@@ -30,7 +30,7 @@ public class ReservationService {
         this.passengerRepository = passengerRepository;
     }
 
-    public List<Reservation> getReservationsByUserId(Integer userId) {
+    public List<Reservation> getReservationsByUserId(Long userId) {
         return reservationRepository.findReservationsByUserId(userId);
     }
 
@@ -95,5 +95,6 @@ public class ReservationService {
     public List<Reservation> getReservationByUserId(Integer userId) {
         return reservationRepository.findReservationByUserId(userId);
     }
+
 
 }
