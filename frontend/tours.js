@@ -2,289 +2,88 @@ const API_BASE = "http://localhost:8080/api";
 const grid = document.getElementById("results-grid");
 const title = document.getElementById("page-title");
 
-// Sayfa açılınca hepsini getir
+// GLOBAL FİLTRE DURUMU
+let currentFilters = {
+    city: "",
+    country: "",
+    minPrice: "",
+    maxPrice: "",
+    minDur: "",
+    maxDur: "",
+    guests: "",
+    sortBy: "rating"
+};
+
+// Sayfa açılınca çalışır
 document.addEventListener("DOMContentLoaded", () => {
-    tumTurlariGetir(); // Mevcut fonksiyonun
-    ulkeleriDoldur();  // Yeni fonksiyon
-    yolcuFormlariniOlustur();
+    ulkeleriDoldur();
+    verileriGetir(); // İlk açılışta hepsini getirir
 });
 
-// ---------------------------------------------
-// 1. ANA FONKSİYON: Tüm Turları Getir
-// ---------------------------------------------
-
-// Sayfa açılınca Ülkeleri Doldur
-document.addEventListener("DOMContentLoaded", () => {
-    tumTurlariGetir(); // Mevcut fonksiyonun
-    ulkeleriDoldur();  // Yeni fonksiyon
-});
-
-// --- YENİ EKLENEN FONKSİYONLAR ---
-
-// 1. Ülkeleri Dropdown'a Doldur
-function ulkeleriDoldur() {
-    fetch(`${API_BASE}/destinations/countries`)
-        .then(res => res.json())
-        .then(countries => {
-            const select = document.getElementById("filterCountry");
-            countries.forEach(country => {
-                const opt = document.createElement("option");
-                opt.value = country;
-                opt.text = country;
-                select.appendChild(opt);
-            });
-        });
-}
-
-// 2. Ülke Seçilince Şehirleri Getir
-function ulkeFiltresiSecildi() {
-    const country = document.getElementById("filterCountry").value;
+// --- 1. FİLTRELERİ UYGULA BUTONU ---
+function filtreleriUygula() {
+    // HTML'den değerleri al
+    currentFilters.country = document.getElementById("filterCountry").value;
+    
     const citySelect = document.getElementById("filterCity");
+    currentFilters.city = citySelect ? citySelect.value : "";
+    if(currentFilters.city === "Tümü") currentFilters.city = "";
+
+    currentFilters.minPrice = document.getElementById("minPrice").value;
+    currentFilters.maxPrice = document.getElementById("maxPrice").value;
+    currentFilters.minDur = document.getElementById("minDur").value;
+    currentFilters.maxDur = document.getElementById("maxDur").value;
+    currentFilters.guests = document.getElementById("filterGuests").value;
+    currentFilters.sortBy = document.getElementById("sortOrder").value;
+
+    // Verileri çek
+    verileriGetir();
+}
+
+// --- 2. SIRALAMA DEĞİŞİNCE ---
+function siralamayiDegistir() {
+    console.log("Sıralama değişti, Backend'den yeni veri isteniyor...");
+    currentFilters.sortBy = document.getElementById("sortOrder").value;
     
-    citySelect.innerHTML = '<option value="">Tümü</option>'; // Temizle
-    citySelect.disabled = true; // Kilitle
-
-    if (!country) return; // Boş seçildiyse dur
-
-    // Şehirleri Çek
-    fetch(`${API_BASE}/destinations/cities/${country}`)
-        .then(res => res.json())
-        .then(cities => {
-            cities.forEach(city => {
-                const opt = document.createElement("option");
-                // Şehir adını value olarak kullanıyoruz çünkü search-city endpointi isim bekliyor
-                opt.value = city.destinationCity; 
-                opt.text = city.destinationCity;
-                citySelect.appendChild(opt);
-            });
-            citySelect.disabled = false; // Kilidi aç
-        });
+    // Backend sıralamayı yaptığı için tekrar istek atıyoruz
+    verileriGetir();
 }
 
-// 3. "Ara" Butonuna Basınca Çalışan Zeka
-function destinasyonFiltrele() {
-    const country = document.getElementById("filterCountry").value;
-    const city = document.getElementById("filterCity").value;
+// --- 3. BACKEND İSTEĞİ (TEK MERKEZ) ---
+function verileriGetir() {
+    title.innerText = "Sonuçlar Yükleniyor...";
+    grid.innerHTML = "⏳ Lütfen bekleyin...";
 
-    title.innerText = "Arama Sonuçları";
-    grid.innerHTML = "⏳ Aranıyor...";
-
-    let url = "";
-
-    if (city) {
-        // Eğer Şehir seçildiyse -> Şehir Arama Endpoint'ine git
-        // Adres: /api/tours/search-city/{city}
-        url = `${API_BASE}/tours/search-city/${city}`;
-        title.innerText = `🏙️ "${city}" Turları`;
-    } else if (country) {
-        // Eğer sadece Ülke seçildiyse -> Ülke Arama Endpoint'ine git (YENİ YAPTIĞIMIZ)
-        // Adres: /api/tours/by-country/{country}
-        url = `${API_BASE}/tours/by-country/${country}`;
-        title.innerText = `🌍 "${country}" Turları`;
-    } else {
-        // Hiçbiri seçilmediyse -> Hepsini getir
-        tumTurlariGetir();
-        return;
-    }
-
-    // İsteği At ve Listele
-    fetch(url)
-        .then(res => res.json())
-        .then(data => renderCards(data, "tour"))
-        .catch(err => showError(err));
-}
-
-function tumTurlariGetir() {
-    title.innerText = "Tüm Turlar";
-    grid.innerHTML = "⏳ Yükleniyor...";
+    // Parametreleri hazırla
+    const params = new URLSearchParams();
+    if (currentFilters.country) params.append("country", currentFilters.country);
+    if (currentFilters.city) params.append("city", currentFilters.city);
+    if (currentFilters.minPrice) params.append("minPrice", currentFilters.minPrice);
+    if (currentFilters.maxPrice) params.append("maxPrice", currentFilters.maxPrice);
+    if (currentFilters.minDur) params.append("minDuration", currentFilters.minDur);
+    if (currentFilters.maxDur) params.append("maxDuration", currentFilters.maxDur);
+    if (currentFilters.guests) params.append("guests", currentFilters.guests);
     
-    fetch(`${API_BASE}/tours`)
-        .then(res => res.json())
-        .then(data => renderCards(data, "tour"))
-        .catch(err => showError(err));
-}
+    // ARTIK SORT PARAMETRESİNİ DE GÖNDERİYORUZ (Çünkü Backend yapıyor)
+    if (currentFilters.sortBy) params.append("sortBy", currentFilters.sortBy);
 
-function yolcuFormlariniOlustur() {
-        const count = document.getElementById("guest-count").value;
-        const container = document.getElementById("passenger-forms-container");
-        
-        container.innerHTML = ""; // Önce temizle
-
-        for (let i = 1; i <= count; i++) {
-            const html = `
-                <div style="background:#f9f9f9; padding:10px; border:1px solid #ddd; margin-bottom:10px; border-radius:5px;">
-                    <strong>${i}. Yolcu Bilgileri</strong>
-                    <input type="text" class="p-name" placeholder="Ad Soyad" style="width:100%; margin-top:5px;">
-                    <input type="text" class="p-tc" placeholder="TC Kimlik / Pasaport" style="width:100%; margin-top:5px;">
-                    <input type="date" class="p-birth" placeholder="Doğum Tarihi" style="width:100%; margin-top:5px;">
-                    ${i === 1 ? '<small style="color:blue">İletişim bilgileri 1. yolcudan alınır.</small><input type="text" class="p-phone" placeholder="Telefon"><input type="email" class="p-email" placeholder="E-posta">' : ''}
-                </div>
-            `;
-            container.innerHTML += html;
-        }
-        
-        // Fiyatı da güncelle
-        if(typeof fiyatiHesapla === "function") fiyatiHesapla();
-    }
-
-    // Backend'e Gönderme Fonksiyonu
-    function rezervasyonuTamamla() {
-        const packageId = document.getElementById("packageSelect").value;
-        const guestCount = document.getElementById("guest-count").value;
-        
-        // Formlardaki verileri topla
-        const passengers = [];
-        const formDivs = document.querySelectorAll("#passenger-forms-container > div"); // Her kutuyu al
-
-        formDivs.forEach((div, index) => {
-            const p = {
-                name: div.querySelector(".p-name").value,
-                tcKimlik: div.querySelector(".p-tc").value,
-                birthDate: div.querySelector(".p-birth").value,
-                // Sadece 1. yolcuda iletişim bilgisi var, diğerlerinde boş olabilir veya kopyalanabilir
-                phone: index === 0 ? div.querySelector(".p-phone").value : null, 
-                email: index === 0 ? div.querySelector(".p-email").value : null
-            };
-            passengers.push(p);
-        });
-
-        // JSON Hazırla
-        const requestData = {
-            userId: 1, // Şimdilik test için sabit, login olunca değişecek
-            packageId: parseInt(packageId),
-            guestCount: parseInt(guestCount),
-            passengers: passengers // Listeyi gönderiyoruz
-        };
-
-        console.log("Giden Veri:", requestData); // Kontrol için
-
-        fetch(`${API_BASE}/reservations/create`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestData)
-        })
-        .then(res => {
-            if(!res.ok) throw new Error("Rezervasyon başarısız!");
-            return res.json();
-        })
-        .then(data => {
-            alert("✅ Rezervasyon ve Yolcular Kaydedildi! ID: " + data.reservationId);
-        })
-        .catch(err => alert("Hata: " + err.message));
-    }
-
-// ---------------------------------------------
-// 2. ŞEHİR ARAMA (TourController)
-// ---------------------------------------------
-function sehirAra() {
-    const city = document.getElementById("cityInput").value;
-    if(!city) { alert("Lütfen şehir yazın!"); return; }
-
-    title.innerText = `🏙️ "${city}" İçin Sonuçlar`;
-    grid.innerHTML = "⏳ Aranıyor...";
-
-    fetch(`${API_BASE}/tours/search-city/${city}`)
-        .then(res => res.json())
-        .then(data => renderCards(data, "tour"))
-        .catch(err => showError(err));
-}
-
-// ---------------------------------------------
-// 3. FİYAT ARALIĞI (TourPackageController)
-// ---------------------------------------------
-function fiyataGoreGetir() {
-    const min = document.getElementById("minPrice").value || 0;
-    const max = document.getElementById("maxPrice").value || 999999;
-
-    title.innerText = `💰 ${min} - ${max} TL Arası Paketler`;
-    grid.innerHTML = "⏳ Filtreleniyor...";
-
-    // Backend endpoint: /api/tour-packages/by-price-range?min=X&max=Y
-    fetch(`${API_BASE}/tour-packages/by-price-range?min=${min}&max=${max}`)
-        .then(res => res.json())
-        .then(data => renderCards(data, "package")) // DİKKAT: Burada tip "package"
-        .catch(err => showError(err));
-}
-
-// ---------------------------------------------
-// 5. SADECE SÜREYE GÖRE ARA
-// ---------------------------------------------
-// ---------------------------------------------
-// 5. SADECE SÜREYE GÖRE ARA (ARALIKLI)
-// ---------------------------------------------
-function sureyeGoreAra() {
-    // Kutulardan değerleri al (Boşsa varsayılan değer ata)
-    let min = document.getElementById("minDur").value;
-    let max = document.getElementById("maxDur").value;
-
-    // Eğer ikisi de boşsa uyarı ver
-    if (!min && !max) {
-        alert("Lütfen en az bir değer giriniz!");
-        return;
-    }
-
-    // Boş bırakılanları mantıklı değerlerle doldur
-    if (!min) min = 0;
-    if (!max) max = 100;
-
-    title.innerText = `⏳ ${min} - ${max} Günlük Turlar`;
-    grid.innerHTML = "⏳ Aranıyor...";
-
-    // YENİ ADRES: /api/tours/by-duration?min=...&max=...
-    fetch(`${API_BASE}/tours/by-duration?min=${min}&max=${max}`)
-        .then(res => res.json())
-        .then(data => renderCards(data, "tour"))
-        .catch(err => showError(err));
-}
-
-// ---------------------------------------------
-// 6. SADECE KİŞİ SAYISINA GÖRE ARA
-// ---------------------------------------------
-// ---------------------------------------------
-// 6. KALAN KOLTUĞA GÖRE ARA (GÜNCELLENMİŞ)
-// ---------------------------------------------
-function kapasiteyeGoreAra() {
-    const guests = document.getElementById("inputGuests").value;
-
-    if (!guests) {
-        alert("Lütfen kişi sayısı giriniz!");
-        return;
-    }
-
-    title.innerText = `👥 En Az ${guests} Kişilik Yeri Olan Paketler`;
-    grid.innerHTML = "⏳ Kontenjanlar kontrol ediliyor...";
-
-    // DİKKAT: Artık 'tours' değil 'tour-packages' endpointine gidiyoruz
-    fetch(`${API_BASE}/tour-packages/by-availability?seats=${guests}`)
+    // Backend'deki "Search" Endpoint'ine git
+    fetch(`${API_BASE}/tours/search?${params.toString()}`)
         .then(res => res.json())
         .then(data => {
-            // DİKKAT 2: Gelen veri 'paket' olduğu için renderCards'a "package" tipini gönderiyoruz
-            renderCards(data, "package"); 
+            if(data.length > 0) {
+                title.innerText = `${data.length} Tur Bulundu`;
+            } else {
+                title.innerText = "Sonuç Bulunamadı";
+            }
+            // Gelen veri zaten sıralı, direkt basıyoruz
+            renderCards(data);
         })
         .catch(err => showError(err));
 }
 
-// ---------------------------------------------
-// 4. SIRALAMA (TourPackageController)
-// ---------------------------------------------
-function fiyatSirala(yon) {
-    const endpoint = yon === 'asc' ? 'order-by-price-asc' : 'order-by-price-desc';
-    
-    title.innerText = yon === 'asc' ? "Fiyat: Düşükten Yükseğe" : "Fiyat: Yüksekten Düşüğe";
-    grid.innerHTML = "⏳ Sıralanıyor...";
-
-    fetch(`${API_BASE}/tour-packages/${endpoint}`)
-        .then(res => res.json())
-        .then(data => renderCards(data, "package"))
-        .catch(err => showError(err));
-}
-
-// ---------------------------------------------
-// ORTAK KART ÇİZME FONKSİYONU
-// ---------------------------------------------
-// ORTAK KART ÇİZME FONKSİYONU
-// ORTAK KART ÇİZME FONKSİYONU (GÜNCELLENMİŞ)
-function renderCards(data, type) {
+// --- 4. KARTLARI ÇİZ ---
+function renderCards(data) {
     grid.innerHTML = "";
 
     if (!data || data.length === 0) {
@@ -292,53 +91,86 @@ function renderCards(data, type) {
         return;
     }
 
-    data.forEach(item => {
-        let name, priceText, desc, id, detailId;
+    data.forEach(dto => {
+        // Backend'den 'TourWithPackagesDTO' geliyor
+        const tour = dto.tour;
+        const packages = dto.packages; // Backend bunu zaten sıraladı!
 
-        // --- 1. TUR İSE (Genel Vitrin) ---
-        if (type === "tour") {
-            id = item.tourId;
-            name = item.packageName;
-            desc = item.description;
+        let id = tour.tourId;
+        let name = tour.packageName;
+        let desc = tour.description;
+        let cardContent = "";
+
+        // Kartın içine paketleri listele
+        if(packages && packages.length > 0) {
+            cardContent = `<div style="margin:10px 0; padding:10px; background:#f8f9fa; border-radius:5px; font-size:13px; border:1px dashed #ccc;">
+                               <strong style="color:#27ae60;">🔥 Uygun Fırsatlar:</strong>
+                               <ul style="padding-left:20px; margin:5px 0; color:#555;">`;
             
-            // Turlarda fiyat gösterme (Detayda pakete göre değişecek)
-            priceText = "Tarih Seçiniz 📅"; 
+            // İlk 3 tanesini gösterelim
+            packages.slice(0, 3).forEach(p => {
+                cardContent += `<li>📅 ${p.startDate}: <strong>${p.basePrice} TL</strong></li>`;
+            });
             
-            detailId = id;
-        } 
-        // --- 2. PAKET İSE (Filtrelenmiş Sonuç) ---
-        else {
-            id = item.packageId;
-            name = item.tour ? item.tour.packageName : "Özel Tur Paketi";
-            
-            // Pakette kesin fiyat vardır, onu göster
-            const price = item.basePrice; 
-            priceText = price ? `${price} TL` : "Fiyat Sorunuz";
-            
-            desc = `📅 Tarih: ${item.startDate} - ${item.endDate}`;
-            detailId = item.tour ? item.tour.tourId : 1;
+            if(packages.length > 3) cardContent += `<li>...ve ${packages.length - 3} tarih daha</li>`;
+            cardContent += `</ul></div>`;
+        } else {
+            cardContent = `<p style="color:#e67e22; font-weight:bold; margin-top:10px;">Tarih Seçiniz 📅</p>`;
         }
 
         const cardHTML = `
             <div class="card">
                 <h3>${name}</h3>
-                
-                <p class="price" style="font-size:18px; font-weight:bold; color:#e67e22;">
-                    ${priceText}
-                </p>
-                
-                <p style="color:#666; font-size:0.9em;">
-                    ${desc ? desc.substring(0, 100) : ''}...
-                </p>
-                
-                <a href="detail.html?id=${detailId}" 
-                   style="display:inline-block; margin-top:10px; padding:8px 15px; background:#007bff; color:white; text-decoration:none; border-radius:4px;">
-                   İncele
-                </a>
+                ${cardContent}
+                <p style="color:#666; font-size:0.9em;">${desc ? desc.substring(0, 80) : ''}...</p>
+                <a href="detail.html?id=${id}" class="btn-inspect">İncele</a>
             </div>
         `;
         grid.innerHTML += cardHTML;
     });
+}
+
+// --- YARDIMCI FONKSİYONLAR ---
+
+function ulkeleriDoldur() {
+    fetch(`${API_BASE}/destinations/countries`)
+        .then(res => res.json())
+        .then(countries => {
+            const select = document.getElementById("filterCountry");
+            select.innerHTML = '<option value="">Tümü</option>';
+            
+            const uniqueList = [...new Set(countries.filter(c=>c).map(c=>c.trim()))];
+            
+            uniqueList.forEach(country => {
+                const opt = document.createElement("option");
+                opt.value = country;
+                opt.text = country;
+                select.appendChild(opt);
+            });
+        })
+        .catch(err => console.error(err));
+}
+
+function ulkeFiltresiSecildi() {
+    const country = document.getElementById("filterCountry").value;
+    const citySelect = document.getElementById("filterCity");
+    
+    citySelect.innerHTML = '<option value="">Tümü</option>';
+    citySelect.disabled = true;
+
+    if (!country || country === "Tümü") return;
+
+    fetch(`${API_BASE}/destinations/cities/${country}`)
+        .then(res => res.json())
+        .then(cities => {
+            cities.forEach(city => {
+                const opt = document.createElement("option");
+                opt.value = city.destinationCity;
+                opt.text = city.destinationCity;
+                citySelect.appendChild(opt);
+            });
+            citySelect.disabled = false;
+        });
 }
 
 function showError(err) {

@@ -4,88 +4,112 @@
     <meta charset="UTF-8">
     <title>Turlar & Paketler</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; min-height: 100vh; margin: 0; background-color: #f4f4f4; }
+        /* GENEL YAPI (Sidebar ve İçerik yan yana) */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #f4f4f4; 
+            margin: 0; 
+            display: flex; /* Yan yana dizilim için */
+            min-height: 100vh; 
+        }
         
-        /* Sol Sidebar (Filtreler) */
-        .sidebar { width: 300px; background: white; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
-        .sidebar h3 { color: #333; margin-top: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .filter-group { margin-bottom: 15px; }
-        .filter-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
-        .filter-group input, .filter-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
-        
-        .btn-filter { width: 100%; padding: 10px; background: #27ae60; color: white; border: none; cursor: pointer; border-radius: 5px; margin-top: 5px; }
-        .btn-reset { width: 100%; padding: 10px; background: #e74c3c; color: white; border: none; cursor: pointer; border-radius: 5px; margin-top: 5px; }
+        /* SOL SIDEBAR (Filtreler) */
+        .sidebar { 
+            width: 300px; 
+            background: white; 
+            padding: 25px; 
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05); 
+            
+            /* İşte Sihirli Dokunuş: Fixed yerine Sticky */
+            position: sticky; 
+            top: 0; 
+            height: 100vh; /* Ekran boyu kadar olsun */
+            overflow-y: auto; /* İçeriği sığmazsa kaydırma çubuğu çıksın */
+            
+            /* Üst üste binmeyi önlemek için */
+            flex-shrink: 0; 
+            box-sizing: border-box;
+        }
 
-        /* Sağ Taraf (Sonuçlar) */
-        .content { flex: 1; padding: 30px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        /* Sidebar Başlık */
+        .sidebar h2 { color: #333; margin-top: 0; display: flex; align-items: center; gap: 10px; }
         
-        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .price { font-size: 18px; color: #e67e22; font-weight: bold; }
+        /* SAĞ TARAF (Sonuçlar) */
+        .content { 
+            flex-grow: 1; /* Kalan tüm alanı kapla */
+            padding: 40px; 
+            /* Margin-left ARTIK GEREK YOK çünkü flex kullanıyoruz */
+            overflow-x: hidden; 
+        }
+
+        /* Diğer stiller (Kartlar, Butonlar vs.) AYNEN KALSIN */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .filter-group { margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px; }
+        .filter-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px; }
+        .filter-group input, .filter-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
+        .btn-filter { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; cursor: pointer; border-radius: 6px; font-size: 16px; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        .btn-reset { width: 100%; padding: 10px; background: #e74c3c; color: white; border: none; cursor: pointer; border-radius: 6px; margin-top: 10px; font-weight: bold; }
+        .back-link { display: block; margin-bottom: 20px; color: #3498db; text-decoration: none; font-weight: 500; }
+        .btn-inspect { display: block; width: 100%; padding: 10px; background: #007bff; color: white; text-align: center; text-decoration: none; border-radius: 6px; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
+        <a href="index.html" class="back-link">← Ana Sayfaya Dön</a>
         <h2>🔍 Filtrele</h2>
-        <a href="index.html">← Ana Sayfaya Dön</a>
-        <hr>
-
+        
         <div class="filter-group">
-            <h3>🌍 Destinasyon</h3>
-            
-            <label>1. Ülke Seç:</label>
+            <label>🌍 Destinasyon</label>
+            <label style="font-size:12px; color:#888;">1. Ülke Seç:</label>
             <select id="filterCountry" onchange="ulkeFiltresiSecildi()">
                 <option value="">Tümü</option>
             </select>
 
-            <label style="margin-top:10px;">2. Şehir Seç:</label>
+            <label style="font-size:12px; color:#888; margin-top:10px;">2. Şehir Seç:</label>
             <select id="filterCity" disabled>
                 <option value="">Önce Ülke Seç...</option>
             </select>
-
-            <button class="btn-filter" onclick="destinasyonFiltrele()">🔍 Ara</button>
         </div>
 
         <div class="filter-group">
-            <h3>💰 Fiyat Aralığı</h3>
-            <label>Min TL</label>
-            <input type="number" id="minPrice" placeholder="0">
-            <label>Max TL</label>
-            <input type="number" id="maxPrice" placeholder="10000">
-            <button class="btn-filter" onclick="fiyataGoreGetir()">Filtrele</button>
-        </div>
-
-        <div class="filter-group">
-            <h3>🔃 Sırala</h3>
-            <button class="btn-filter" style="background:#3498db" onclick="fiyatSirala('asc')">Fiyat: Artan ⬆️</button>
-            <button class="btn-filter" style="background:#3498db" onclick="fiyatSirala('desc')">Fiyat: Azalan ⬇️</button>
-        </div>
-
-        <button class="btn-reset" onclick="tumTurlariGetir()">🔄 Filtreleri Temizle</button>
-
-        <div class="filter-group">
-            <h3>⏳ Tur Süresi (Gün)</h3>
-            <div style="display:flex; gap:5px; align-items: center;">
-                <input type="number" id="minDur" placeholder="Min" style="width:40%;">
-                <span>-</span>
-                <input type="number" id="maxDur" placeholder="Max" style="width:40%;">
-            </div>
-            <button class="btn-filter" style="margin-top:5px;" onclick="sureyeGoreAra()">Ara</button>
-        </div>
-
-        <div class="filter-group">
-            <h3>👥 Kişi Sayısı</h3>
-            <label>Kaç Kişisiniz?</label>
-            <div style="display:flex; gap:5px;">
-                <input type="number" id="inputGuests" placeholder="Örn: 3">
-                <button class="btn-filter" style="background:#e67e22;" onclick="kapasiteyeGoreAra()">Ara</button>
+            <label>💰 Fiyat Aralığı (TL)</label>
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="minPrice" placeholder="Min">
+                <input type="number" id="maxPrice" placeholder="Max">
             </div>
         </div>
+
+        <div class="filter-group">
+            <label>⏳ Süre (Gün)</label>
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="minDur" placeholder="Min">
+                <input type="number" id="maxDur" placeholder="Max">
+            </div>
+        </div>
+
+        <div class="filter-group">
+            <label>👥 Kişi Sayısı</label>
+            <input type="number" id="filterGuests" placeholder="Örn: 2">
+        </div>
+
+        <div class="filter-group" style="border:none;">
+            <label>🔃 Sıralama</label>
+            <select id="sortOrder" onchange="siralamayiDegistir()">
+                <option value="rating">⭐ Önerilen (Puan)</option>
+                <option value="priceAsc">💰 Fiyat: Artan</option>
+                <option value="priceDesc">💰 Fiyat: Azalan</option>
+            </select>
+        </div>
+
+        <button class="btn-filter" onclick="filtreleriUygula()">🚀 Sonuçları Göster</button>
+        <button class="btn-reset" onclick="location.reload()">🔄 Temizle</button>
     </div>
 
     <div class="content">
-        <h1 id="page-title">Tüm Turlar</h1>
+        <h1 id="page-title" style="color:#333;">Tüm Turlar</h1>
         <div id="results-grid" class="grid">
             <p>Yükleniyor...</p>
         </div>
