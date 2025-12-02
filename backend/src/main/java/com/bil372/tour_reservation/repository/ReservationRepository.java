@@ -19,7 +19,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
         """,
     nativeQuery = true
     )
-    List<Reservation> findReservationsByUserId(@Param("userId") Integer userId);
+    List<Reservation> findReservationsByUserId(@Param("userId") Long userId);
 
     @Query(
         value = """
@@ -38,5 +38,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Intege
         nativeQuery = true
     )
     List<Reservation> findReservationByUserId(@Param("userId") Integer userId);
+    
    
 }

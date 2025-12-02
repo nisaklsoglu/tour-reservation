@@ -37,7 +37,7 @@ public class CompanyController {
             return ResponseEntity.ok(
                     new Object() {
                         public Long id = created.getId();
-                        public Long userId = created.getUser().getId();
+                        public Integer userId = created.getUser().getId();
                         public String tursabNo = created.getTursabNo();
                         public String name = created.getName();
                         public String email = created.getEmail();
