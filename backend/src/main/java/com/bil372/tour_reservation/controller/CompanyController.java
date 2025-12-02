@@ -60,7 +60,7 @@ public class CompanyController {
             return ResponseEntity.ok(
                     new Object() {
                         public Long companyId = c.getId();
-                        public Long userId = c.getUser().getId();
+                        public Integer userId = c.getUser().getId();
                         public String tursabNo = c.getTursabNo();
                         public String name = c.getName();
                         public String email = c.getEmail();
@@ -79,7 +79,7 @@ public class CompanyController {
 
         // Kullanıcı ID'sine göre şirketi döner
     @GetMapping("/by-user/{userId}")
-    public ResponseEntity<?> getCompanyByUser(@PathVariable Long userId) {
+    public ResponseEntity<?> getCompanyByUser(@PathVariable Integer userId) {
         try {
             Company c = companyService.getCompanyByUserId(userId);
 
@@ -87,7 +87,7 @@ public class CompanyController {
             return ResponseEntity.ok(
                     new Object() {
                         public Long id = c.getId();
-                        public Long userId = c.getUser().getId();
+                        public Integer userId = c.getUser().getId();
                         public String tursabNo = c.getTursabNo();
                         public String name = c.getName();
                         public String email = c.getEmail();

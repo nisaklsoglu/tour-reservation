@@ -51,7 +51,7 @@ public class CompanyService {
         return companyRepository.save(company);
     }
 
-    public Company getCompanyByUserId(Long userId) {
+    public Company getCompanyByUserId(Integer userId) {
 
         // 1) User’ı bul
         User user = userRepository.findById(userId)
