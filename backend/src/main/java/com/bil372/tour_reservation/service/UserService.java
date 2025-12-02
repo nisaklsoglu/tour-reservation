@@ -40,9 +40,8 @@ public class UserService {
         return null;
     }
 
-    // plain text password kontrolü
-    if (!user.getPassword().equals(password)) {
-        return null;
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+        return null; // şifre hatalı
     }
 
     return user;

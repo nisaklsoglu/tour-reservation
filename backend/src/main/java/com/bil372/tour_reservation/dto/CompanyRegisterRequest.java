@@ -2,18 +2,18 @@ package com.bil372.tour_reservation.dto;
 
 public class CompanyRegisterRequest {
 
-    private Long userId;      // 🔥 hangi user şirket oluyor
+    private Integer userId;      // 🔥 hangi user şirket oluyor
     private String tursabNo;
     private String name;
     private String email;
     private String phoneNo;
     private String address;
 
-    public Long getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
