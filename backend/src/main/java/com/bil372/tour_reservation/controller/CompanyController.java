@@ -50,4 +50,55 @@ public class CompanyController {
             return ResponseEntity.internalServerError().body("Sunucu hatası");
         }
     }
+
+
+        @GetMapping("/{id}")
+    public ResponseEntity<?> getCompanyById(@PathVariable Long id) {
+        try {
+            Company c = companyService.getCompanyById(id);
+
+            return ResponseEntity.ok(
+                    new Object() {
+                        public Long companyId = c.getId();
+                        public Long userId = c.getUser().getId();
+                        public String tursabNo = c.getTursabNo();
+                        public String name = c.getName();
+                        public String email = c.getEmail();
+                        public String phoneNo = c.getPhoneNo();
+                        public String address = c.getAddress();
+                    }
+            );
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Sunucu hatası");
+        }
+    }
+
+
+
+        // Kullanıcı ID'sine göre şirketi döner
+    @GetMapping("/by-user/{userId}")
+    public ResponseEntity<?> getCompanyByUser(@PathVariable Long userId) {
+        try {
+            Company c = companyService.getCompanyByUserId(userId);
+
+            // Frontend için sade bir JSON dönüyoruz
+            return ResponseEntity.ok(
+                    new Object() {
+                        public Long id = c.getId();
+                        public Long userId = c.getUser().getId();
+                        public String tursabNo = c.getTursabNo();
+                        public String name = c.getName();
+                        public String email = c.getEmail();
+                    }
+            );
+        } catch (RuntimeException e) {
+            // Bu kullanıcıya ait company yoksa 404 dönelim
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Sunucu hatası");
+        }
+    }
+
 }

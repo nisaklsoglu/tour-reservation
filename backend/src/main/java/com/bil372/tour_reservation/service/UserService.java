@@ -40,11 +40,12 @@ public class UserService {
         return null;
     }
 
+    // pencrypted şifre kontrolü
     if (!passwordEncoder.matches(password, user.getPassword())) {
         return null; // şifre hatalı
     }
 
-    return user;
+    return user; // giriş başarılı
 }
 
 }

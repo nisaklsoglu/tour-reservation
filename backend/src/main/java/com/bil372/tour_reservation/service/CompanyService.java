@@ -50,4 +50,22 @@ public class CompanyService {
         // 5) DB'ye kaydet
         return companyRepository.save(company);
     }
+
+    public Company getCompanyByUserId(Long userId) {
+
+        // 1) User’ı bul
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı."));
+
+        // 2) O user’a ait company var mı?
+        return companyRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Bu kullanıcıya ait şirket bulunamadı."));
+    }
+
+    public Company getCompanyById(Long id) {
+    return companyRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Şirket bulunamadı."));
+}
+
+
 }
