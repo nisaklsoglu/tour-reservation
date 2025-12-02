@@ -5,7 +5,7 @@
     <title>Tur Detayı</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .container { max-width: 1100px; margin: auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         
         /* BÖLÜM 1: VİTRİN (Detaylar) */
         .showcase-header { text-align: center; margin-bottom: 30px; }
@@ -17,62 +17,33 @@
 
         .description-box { line-height: 1.8; color: #444; font-size: 16px; margin-bottom: 30px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 20px 0; }
 
-        .action-area { text-align: center; }
-        .btn-start-booking { background: #e67e22; color: white; border: none; padding: 15px 40px; font-size: 20px; border-radius: 50px; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4); }
-        .btn-start-booking:hover { background: #d35400; transform: scale(1.05); }
+        /* YENİ: PAKET LİSTESİ */
+        .package-list-area { margin-top: 30px; }
+        .package-card { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 15px; transition: 0.3s; }
+        .package-card:hover { border-color: #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        .pkg-date { font-size: 18px; font-weight: bold; color: #333; }
+        .pkg-price { font-size: 22px; font-weight: bold; color: #27ae60; }
+        .pkg-stock { font-size: 14px; color: #666; margin-top: 5px; }
+        
+        .btn-select-pkg { background: #e67e22; color: white; border: none; padding: 10px 25px; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
+        .btn-select-pkg:hover { background: #d35400; }
 
-        /* BÖLÜM 2: REZERVASYON PANELİ (Başlangıçta Gizli) */
-        #reservation-panel { display: none; animation: fadeIn 0.5s; }
+        /* BÖLÜM 2: REZERVASYON PANELİ (Gizli) */
+        #reservation-panel { display: none; animation: fadeIn 0.5s; padding-top: 20px; border-top: 2px dashed #ccc; margin-top: 30px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .res-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .btn-back { background: transparent; border: 1px solid #ccc; padding: 5px 15px; border-radius: 5px; cursor: pointer; color: #666; }
+        .res-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn-back { background: #95a5a6; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; }
 
-        /* Form Stilleri (Aynen Korundu) */
-        .passenger-card { background: #f8f9fa; padding: 15px; border: 1px solid #e9ecef; margin-bottom: 15px; border-radius: 8px; }
+        /* Form Stilleri */
+        .passenger-card { background: #f8f9fa; padding: 15px; border: 1px solid #e9ecef; margin-bottom: 15px; border-radius: 8px; position: relative; }
         .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
         .total-price { font-size: 24px; font-weight: bold; color: #27ae60; text-align: right; margin-top: 20px; }
         .btn-confirm { width: 100%; background: #27ae60; color: white; padding: 15px; font-size: 18px; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; }
         
-        .error-msg { color: red; font-weight: bold; display: none; text-align: center; margin-top: 10px;}
-
-        
-
-        /* detail.html <style> içine ekle */
-
-        .passenger-card { 
-            position: relative; /* Silme butonu buna göre konumlanacak */
-            background: #f8f9fa; 
-            padding: 15px; 
-            border: 1px solid #e9ecef; 
-            margin-bottom: 15px; 
-            border-radius: 8px; 
-            transition: all 0.3s ease;
-        }
-
-        .btn-remove-passenger {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #ef9a9a;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
-        .btn-remove-passenger:hover {
-            background: #c62828;
-            color: white;
-        }
+        .btn-remove-passenger { position: absolute; top: 10px; right: 10px; background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; border-radius: 50%; width: 25px; height: 25px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -90,33 +61,29 @@
             <div class="info-grid">
                 <div class="info-badge">📍 <span id="t-dest">Şehirler</span></div>
                 <div class="info-badge">⏳ <span id="t-duration">0</span> Gün</div>
-                <div class="info-badge">👥 Kontenjan: <span id="t-cap">0</span></div>
             </div>
 
-            <div class="description-box" id="t-desc">
-                Tur açıklaması buraya gelecek...
-            </div>
+            <div class="description-box" id="t-desc">Açıklama...</div>
 
-            <div class="action-area">
-                <button class="btn-start-booking" onclick="rezervasyonaGec()">📅 Rezervasyon Yap</button>
+            <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">📅 Müsait Tarihler ve Fiyatlar</h3>
+            
+            <div id="package-list-container" class="package-list-area">
+                <p>Paketler yükleniyor...</p>
             </div>
         </div>
 
         <div id="reservation-panel">
             <div class="res-header">
-                <h2>Rezervasyon Oluştur</h2>
-                <button class="btn-back" onclick="detayaDon()">← Geri Dön</button>
+                <h2 id="res-title">Rezervasyon Tamamla</h2>
+                <button class="btn-back" onclick="detayaDon()">← Listeye Dön</button>
             </div>
 
-            <form onsubmit="return false;">
-                <label>Tarih Seçiniz:</label>
-                <select id="packageSelect" onchange="paketDegisti()">
-                    <option value="" data-price="0">Yükleniyor...</option>
-                </select>
-                <div id="no-package-msg" class="error-msg">⚠️ Bu tur için uygun tarih bulunamadı.</div>
+            <input type="hidden" id="selectedPackageId">
+            <input type="hidden" id="selectedPackagePrice">
 
-                <label>Kişi Sayısı:</label>
-                <input type="number" id="guest-count" value="1" min="1" max="5" onchange="yolcuFormlariniOlustur()">
+            <form onsubmit="return false;">
+                <label><b>Kişi Sayısı:</b></label>
+                <input type="number" id="guest-count" value="1" min="1" max="5" onchange="yolcuFormlariniOlustur()" style="width: 100px; margin-bottom: 20px;">
 
                 <div id="passenger-forms-container"></div>
 
