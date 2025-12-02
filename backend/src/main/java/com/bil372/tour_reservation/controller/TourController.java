@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import java.util.List;
 
 @RestController

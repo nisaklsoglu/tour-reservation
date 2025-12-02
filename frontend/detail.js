@@ -2,6 +2,13 @@ const urlParams = new URLSearchParams(window.location.search);
 const tourId = urlParams.get('id');
 const API_BASE = "http://localhost:8080/api";
 
+const CURRENT_USER_ID = localStorage.getItem("userId");
+
+if (!CURRENT_USER_ID) {
+    alert("Rezervasyon yapmak için önce giriş yapmalısınız.");
+    window.location.href = "login.html";
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     if(!tourId) {
         document.getElementById('loading').innerText = "Geçersiz ID!";
@@ -265,7 +272,20 @@ function rezervasyonuTamamla() {
 
     if(error) { alert("Lütfen tüm alanları doldurun!"); return; }
 
-    const data = { userId: 1, packageId: parseInt(pkgId), guestCount: parseInt(count), passengers: passengers };
+    const userId = parseInt(CURRENT_USER_ID, 10);
+
+    if (!userId) {
+        alert("Oturum bulunamadı, lütfen tekrar giriş yapın.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const data = { 
+        userId: userId, 
+        packageId: parseInt(pkgId), 
+        guestCount: parseInt(count), 
+        passengers: passengers 
+    };
 
     fetch(`${API_BASE}/reservations/create`, {
         method: "POST",

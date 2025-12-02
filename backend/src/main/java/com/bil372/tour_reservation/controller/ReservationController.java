@@ -21,10 +21,7 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
-    @GetMapping("/user/{userId}")
-    public List<Reservation> getReservationsByUserId(@PathVariable Integer userId) {
-        return reservationService.getReservationsByUserId(userId);
-    }
+    // Removed duplicate mapping; use the ResponseEntity-returning method below.
 
     @PostMapping("/create")
     // DÜZELTME BURADA: @Valid ekledik.
@@ -41,9 +38,10 @@ public class ReservationController {
 
     
 
-    @GetMapping("/user/{userId}/sorted")
-    public List<Reservation> getReservationByUserId(@PathVariable Integer userId) {
-        return reservationService.getReservationByUserId(userId);
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Reservation>> getReservationsByUser(@PathVariable Long userId) {
+        List<Reservation> reservations = reservationService.getReservationsByUserId(userId);
+        return ResponseEntity.ok(reservations);
     }
 
 }

@@ -32,7 +32,7 @@ public class AuthController {
 
             return ResponseEntity.ok(
                     new Object() {
-                        public Long id = created.getId();
+                        public Integer id = created.getId();
                         public String email = created.getEmail();
                     }
             );
@@ -64,7 +64,7 @@ public class AuthController {
             // Frontend login.html JSON {id, email} bekliyor
             return ResponseEntity.ok(
                     new Object() {
-                        public Long id = user.getId();
+                        public Integer id = user.getId();
                         public String email = user.getEmail();
                     }
             );
