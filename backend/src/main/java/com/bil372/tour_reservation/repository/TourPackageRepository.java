@@ -122,31 +122,6 @@ public interface TourPackageRepository extends JpaRepository<TourPackage, Intege
 
     List<TourPackage> findByAvailableSeatsGreaterThanEqual(Integer seatsNeeded);
 
-
-    
-
-    @Query(value = """
-        SELECT DISTINCT tp.* FROM Tour_Package tp
-        JOIN Tour t ON tp.tour_id = t.tour_id
-        LEFT JOIN Tour_Destination td ON t.tour_id = td.tour_id
-        LEFT JOIN Destination d ON td.destination_id = d.destination_id
-        WHERE (:country IS NULL OR d.destination_country = :country)
-        AND (:city IS NULL OR d.destination_city = :city)
-        AND (:minPrice IS NULL OR tp.base_price >= :minPrice)
-        AND (:maxPrice IS NULL OR tp.base_price <= :maxPrice)
-        AND (:minDur IS NULL OR t.duration >= :minDur)
-        AND (:maxDur IS NULL OR t.duration <= :maxDur)
-        AND (:guests IS NULL OR tp.available_seats >= :guests)
-        """, nativeQuery = true)
-    List<TourPackage> searchByFilters(
-            @Param("country") String country,
-            @Param("city") String city,
-            @Param("minPrice") BigDecimal minPrice,
-            @Param("maxPrice") BigDecimal maxPrice,
-            @Param("minDur") Integer minDur,
-            @Param("maxDur") Integer maxDur,
-            @Param("guests") Integer guests
-    );
     
 
 }
