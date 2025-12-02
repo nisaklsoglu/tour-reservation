@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface TourRepository extends JpaRepository<Tour, Integer> {
@@ -96,7 +97,14 @@ public interface TourRepository extends JpaRepository<Tour, Integer> {
     List<Tour> findByCountry(@Param("countryName") String countryName);
     
     List<Tour> findByDurationBetween(Integer min, Integer max);
+
+    @Query("SELECT DISTINCT p.tour FROM TourPackage p WHERE p.basePrice BETWEEN :min AND :max")
+    List<Tour> findToursByPackagePriceRange(@Param("min") BigDecimal min, @Param("max") BigDecimal max);
+
+    @Query("SELECT DISTINCT p.tour FROM TourPackage p WHERE p.availableSeats >= :seats")
+    List<Tour> findToursByPackageAvailability(@Param("seats") Integer seats);
+}
     
     // (Capacity metodu kalsın, ona dokunmuyoruz)
  
-}
+

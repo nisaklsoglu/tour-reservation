@@ -212,7 +212,17 @@ function yolcuSil(btn) {
     btn.parentElement.remove();
     const input = document.getElementById("guest-count");
     input.value = parseInt(input.value) - 1;
+
+    yenidenNumaralandir();
     fiyatiHesapla();
+}
+
+function yenidenNumaralandir() {
+    const cards = document.querySelectorAll(".passenger-card");
+    cards.forEach((card, index) => {
+        const numSpan = card.querySelector(".p-num");
+        if(numSpan) numSpan.innerText = index + 1;
+    });
 }
 // --- PAKET DETAYLARINI AÇ/KAPA ---
 function paketDetayGoster(btn) {
