@@ -94,3 +94,12 @@
     <script src="tours.js"></script>
 </body>
 </html>
+
+<script>
+const isCompany = localStorage.getItem("isCompany") === "true";
+
+// Eğer şirket hesabıysa bu sayfayı kullanmasın, direkt şirket paneline at
+if (isCompany) {
+    window.location.href = "company.html";
+}
+</script>

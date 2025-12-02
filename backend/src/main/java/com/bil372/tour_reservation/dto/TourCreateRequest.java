@@ -12,7 +12,8 @@ public class TourCreateRequest {
     private String description;
     private String tourType;
     private Integer capacity;
-    // Oda kontenjanları vs. de eklenebilir
+    private Integer duration;
+  
 
     // --- TOUR_PACKAGE Tablosu İçin ---
     private LocalDate startDate;
@@ -51,4 +52,6 @@ public class TourCreateRequest {
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
     public Integer getGuideId() { return guideId; }
     public void setGuideId(Integer guideId) { this.guideId = guideId; }
+    public Integer getDuration() { return duration; }
+    public void setDuration(Integer duration) { this.duration = duration; } 
 }

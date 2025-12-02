@@ -82,50 +82,29 @@ public class TourService {
 
     @Transactional 
     public Tour createTourWithPackage(TourCreateRequest request) {
-        
-        // 1. Önce Genel TUR Bilgisini Oluştur
+
+        // 1. TUR BLUEPRINT OLUŞTUR
         Tour tour = new Tour();
         tour.setCompanyId(request.getCompanyId());
-        
-        // (destinationId satırı silindi, artık liste kullanıyoruz)
-        
         tour.setPackageName(request.getPackageName());
         tour.setDescription(request.getDescription());
         tour.setTourType(request.getTourType());
-        tour.setCapacity(request.getCapacity()); // Örn: 40 Kişi
-        
-        tour.setReview_count(0); 
+        tour.setCapacity(request.getCapacity());     // kapasite
+        tour.setDuration(request.getDuration());     // ✅ EKSİK OLAN KISIM
+
+        tour.setReview_count(0);
         tour.setAvg_rating(null);
 
-        // Çoklu Şehir Ekleme
+        // Çoklu destinasyon
         if (request.getDestinationIds() != null && !request.getDestinationIds().isEmpty()) {
             List<Destination> destinations = destinationRepository.findAllById(request.getDestinationIds());
             tour.setDestinations(destinations);
         }
 
-        // Turu Kaydet
-        Tour savedTour = tourRepository.save(tour);
-
-        // 2. Şimdi Bu Tura Ait İlk PAKETİ Oluştur
-        if (request.getStartDate() != null && request.getBasePrice() != null) {
-            TourPackage tourPackage = new TourPackage();
-            tourPackage.setTour(savedTour); 
-            tourPackage.setStartDate(request.getStartDate());
-            tourPackage.setEndDate(request.getEndDate());
-            tourPackage.setBasePrice(request.getBasePrice());
-            tourPackage.setGuideId(request.getGuideId());
-            tourPackage.setBookedCount(0); 
-            
-            // --- YENİ EKLENEN KRİTİK KISIM ---
-            // İlk paketin boş koltuk sayısı = Turun Kapasitesi
-            tourPackage.setAvailableSeats(savedTour.getCapacity());
-            // ---------------------------------
-            
-            tourPackageRepository.save(tourPackage);
-        }
-
-        return savedTour;
+        // 2. Sadece TUR'u kaydet (paket yok)
+        return tourRepository.save(tour);
     }
+
     
 
 

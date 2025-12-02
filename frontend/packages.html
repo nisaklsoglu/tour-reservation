@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tur Paketleri Yönetimi</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+        }
+        .top-bar {
+            max-width: 1100px;
+            margin: 0 auto 10px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-back {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            background: #6b7280;
+            color: #fff;
+            font-size: 13px;
+        }
+        .btn-back:hover { background: #4b5563; }
+
+        .top-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #374151;
+        }
+        .panel-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 18px 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+        }
+        .muted {
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+        .field-row {
+            margin: 4px 0;
+            font-size: 0.9rem;
+        }
+        .field-label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 8px 6px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+        tr:hover td {
+            background: #f9fafb;
+        }
+        .text-right { text-align: right; }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            box-sizing: border-box;
+            font-size: 0.9rem;
+        }
+        .inline {
+            display: flex;
+            gap: 10px;
+        }
+        .inline > div { flex: 1; }
+        .btn-primary {
+            padding: 9px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            background: #2563eb;
+            color: #fff;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            background: #e5f2ff;
+            color: #1d4ed8;
+        }
+        .message {
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+        .message.error { color: #e11d48; }
+        .message.success { color: #16a34a; }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <button class="btn-back" onclick="goBack()">⬅ Şirket Paneline Dön</button>
+    <div class="top-title" id="tour-header">Tur Paketleri</div>
+</div>
+
+<div class="panel-wrapper">
+    <!-- Sol: Tur bilgisi + paket listesi -->
+    <div class="card">
+        <h2>Tur ve Paketler</h2>
+        <div class="muted" id="tour-subtitle">Tur bilgileri yükleniyor...</div>
+
+        <div id="tour-info" style="margin-top:8px; margin-bottom:10px;">
+            <!-- Tur bilgilerini buraya yazacağız -->
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Başlangıç</th>
+                <th>Bitiş</th>
+                <th>Fiyat</th>
+                <th>Rezerve</th>
+                <th>Kalan Koltuk</th>
+            </tr>
+            </thead>
+            <tbody id="packages-body">
+                <tr><td colspan="5">Paketler yükleniyor...</td></tr>
+            </tbody>
+        </table>
+        <div class="message" id="packages-msg"></div>
+    </div>
+
+    <!-- Sağ: Paket ekleme / düzenleme formu -->
+    <div class="card">
+        <h2>Yeni Paket Ekle <span class="badge">Sezon / Tarih</span></h2>
+        <div class="muted">Bu form ile seçili tur için yeni bir tarih aralığı ve fiyat tanımlayabilirsiniz.</div>
+
+        <label for="startDate">Başlangıç Tarihi</label>
+        <input type="date" id="startDate">
+
+        <label for="endDate">Bitiş Tarihi</label>
+        <input type="date" id="endDate">
+
+        <div class="inline">
+            <div>
+                <label for="basePrice">Fiyat (TL)</label>
+                <input type="number" id="basePrice" placeholder="Örn: 20000" min="0">
+            </div>
+            <div>
+                <label for="availableSeats">Kapasite</label>
+                <input type="number" id="availableSeats" placeholder="Örn: 20" min="0">
+            </div>
+        </div>
+
+        <label for="guideId">Rehber ID (opsiyonel)</label>
+        <input type="number" id="guideId" placeholder="Örn: 1">
+
+        <button class="btn-primary" onclick="savePackage()">Paket Oluştur</button>
+
+        <div class="message" id="form-msg"></div>
+    </div>
+</div>
+
+<script>
+const API_BASE = "http://localhost:8080/api";
+
+// URL'den tourId al
+const params = new URLSearchParams(window.location.search);
+const tourId = params.get("tourId");
+
+if (!tourId) {
+    alert("Tur bilgisi bulunamadı.");
+    window.location.href = "company.html";
+}
+
+// Şirket login guard
+const isCompany = localStorage.getItem("isCompany") === "true";
+if (!isCompany) {
+    alert("Bu sayfaya sadece şirket hesapları erişebilir.");
+    window.location.href = "index.html";
+}
+
+function goBack() {
+    window.location.href = "company.html";
+}
+
+// Tur bilgilerini çek
+async function loadTourInfo() {
+    const subtitle = document.getElementById("tour-subtitle");
+    const infoDiv = document.getElementById("tour-info");
+
+    try {
+        const res = await fetch(`${API_BASE}/tours/${tourId}`);
+        if (!res.ok) {
+            subtitle.textContent = "Tur bilgileri alınamadı.";
+            return;
+        }
+        const t = await res.json();
+
+        document.getElementById("tour-header").textContent = `Tur Paketleri – ${t.packageName || t.tourName || "Tur"}`;
+
+        subtitle.textContent = "Tur bilgileri";
+        infoDiv.innerHTML = `
+            <div class="field-row"><span class="field-label">Adı:</span> ${t.packageName || t.tourName || "-"}</div>
+            <div class="field-row"><span class="field-label">Tip:</span> ${t.tourType || "-"}</div>
+            <div class="field-row"><span class="field-label">Genel Açıklama:</span> ${(t.description || "-")}</div>
+        `;
+    } catch (err) {
+        console.error("Tour info error:", err);
+        subtitle.textContent = "Sunucu hatası.";
+    }
+}
+
+// Paket listesini çek
+async function loadPackages() {
+    const tbody = document.getElementById("packages-body");
+    const msg = document.getElementById("packages-msg");
+    msg.textContent = "";
+    tbody.innerHTML = "<tr><td colspan='5'>Paketler yükleniyor...</td></tr>";
+
+    try {
+        // ❗ BURADAKİ ENDPOINT'İ KENDİ BACKEND'İNE GÖRE AYARLA
+        // Örneğin TourPackageController'da:
+        // @GetMapping("/api/tour-packages/by-tour/{tourId}")
+        const res = await fetch(`${API_BASE}/tour-packages/by-tour/${tourId}`);
+
+        if (!res.ok) {
+            tbody.innerHTML = "<tr><td colspan='5'>Paketler yüklenemedi.</td></tr>";
+            msg.textContent = "Paketler alınırken hata oluştu.";
+            msg.classList.add("error");
+            return;
+        }
+
+        const packages = await res.json();
+        if (!packages || packages.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='5'>Bu tur için henüz paket tanımlanmamış.</td></tr>";
+            return;
+        }
+
+        tbody.innerHTML = "";
+        packages.forEach(p => {
+            const tr = document.createElement("tr");
+            const start = p.startDate || "-";
+            const end = p.endDate || "-";
+            const price = p.basePrice != null ? p.basePrice + " TL" : "-";
+            const booked = p.bookedCount != null ? p.bookedCount : 0;
+            const seats = p.availableSeats != null ? p.availableSeats : "-";
+
+            tr.innerHTML = `
+                <td>${start}</td>
+                <td>${end}</td>
+                <td>${price}</td>
+                <td>${booked}</td>
+                <td>${seats}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        console.error("Packages load error:", err);
+        tbody.innerHTML = "<tr><td colspan='5'>Sunucu hatası.</td></tr>";
+        msg.textContent = "Sunucu hatası (paketler).";
+        msg.classList.add("error");
+    }
+}
+
+// Yeni paket kaydet
+async function savePackage() {
+    const formMsg = document.getElementById("form-msg");
+    formMsg.textContent = "";
+    formMsg.className = "message";
+
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+    const basePrice = document.getElementById("basePrice").value;
+    const availableSeats = document.getElementById("availableSeats").value;
+    const guideId = document.getElementById("guideId").value;
+
+    if (!startDate || !endDate) {
+        formMsg.textContent = "Başlangıç ve bitiş tarihi zorunludur.";
+        formMsg.classList.add("error");
+        return;
+    }
+    if (!basePrice || basePrice <= 0) {
+        formMsg.textContent = "Geçerli bir fiyat giriniz.";
+        formMsg.classList.add("error");
+        return;
+    }
+
+    const body = {
+        tourId: parseInt(tourId, 10),
+        startDate,
+        endDate,
+        basePrice: parseFloat(basePrice),
+        availableSeats: availableSeats ? parseInt(availableSeats, 10) : 0,
+        guideId: guideId ? parseInt(guideId, 10) : null
+    };
+
+    try {
+        // Backend'de zaten var olan endpoint:
+        // @PostMapping("/{tourId}/add-package")
+        // body'de tourId olmasa bile path'ten alınıyor, biz yine de gönderiyoruz
+        const res = await fetch(`${API_BASE}/tours/${tourId}/add-package`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+
+        const text = await res.text();
+
+        if (!res.ok) {
+            formMsg.textContent = text || "Paket eklenirken hata oluştu.";
+            formMsg.classList.add("error");
+            return;
+        }
+
+        formMsg.textContent = "Paket başarıyla oluşturuldu.";
+        formMsg.classList.add("success");
+
+        // Formu temizle
+        document.getElementById("startDate").value = "";
+        document.getElementById("endDate").value = "";
+        document.getElementById("basePrice").value = "";
+        document.getElementById("availableSeats").value = "";
+        document.getElementById("guideId").value = "";
+
+        // Listeyi tazele
+        loadPackages();
+
+    } catch (err) {
+        console.error("Save package error:", err);
+        formMsg.textContent = "Sunucu hatası.";
+        formMsg.classList.add("error");
+    }
+}
+
+// Sayfa açılışında verileri yükle
+loadTourInfo();
+loadPackages();
+</script>
+
+</body>
+</html>

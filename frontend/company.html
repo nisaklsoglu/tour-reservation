@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Şirket Paneli</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #1f2937;
+            color: #fff;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 16px;
+        }
+        header nav a:hover { text-decoration: underline; }
+
+        .container {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1.1fr 2fr;
+            gap: 24px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 18px 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+        }
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+        .field-row {
+            margin: 4px 0;
+            font-size: 0.9rem;
+        }
+        .field-label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            background: #e5f2ff;
+            color: #1d4ed8;
+        }
+        .btn-primary, .btn-danger {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+        .btn-primary:hover { background: #1d4ed8; }
+
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+        .btn-danger:hover { background: #dc2626; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 8px 6px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+        tr:hover td {
+            background: #f9fafb;
+        }
+        .text-right { text-align: right; }
+
+        .message {
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+        .message.error { color: #e11d48; }
+        .message.success { color: #16a34a; }
+
+        .btn-secondary {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            background: #e5e7eb;
+            color: #111827;
+            margin-left: 6px;
+        }
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <strong>TourFinder - Şirket Paneli</strong>
+    </div>
+    <nav>
+        <span id="header-email" style="margin-right: 12px; font-size: 0.9rem; opacity: .9;"></span>
+        <button id="btn-logout" class="btn-danger">Çıkış</button>
+    </nav>
+</header>
+
+
+<div class="container">
+    <div class="grid">
+        <!-- Şirket bilgileri -->
+        <div class="card">
+            <h2>Şirket Bilgileri <span class="badge">Company</span></h2>
+            <div class="field-row"><span class="field-label">Adı:</span> <span id="c-name">–</span></div>
+            <div class="field-row"><span class="field-label">TÜRSAB No:</span> <span id="c-tursab">–</span></div>
+            <div class="field-row"><span class="field-label">E-posta:</span> <span id="c-email">–</span></div>
+            <div class="field-row"><span class="field-label">Telefon:</span> <span id="c-phone">–</span></div>
+            <div class="field-row"><span class="field-label">Adres:</span> <span id="c-address">–</span></div>
+
+            <div class="message" id="company-msg"></div>
+
+            <div style="margin-top:14px;">
+                <button id="btn-add-tour" class="btn-primary">Yeni Tur Ekle</button>
+            </div>
+        </div>
+
+        <!-- Turlar tablosu -->
+        <div class="card">
+            <h2>Turlarım</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tur Adı</th>
+                        <th>Tip</th>
+                        <th>Süre</th>
+                        <th>Fiyat (başlangıç)</th>
+                        <th class="text-right">İşlem</th>
+                    </tr>
+                </thead>
+                <tbody id="tours-body">
+                    <tr><td colspan="5">Yükleniyor...</td></tr>
+                </tbody>
+            </table>
+            <div class="message" id="tours-msg"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_BASE = "http://localhost:8080/api";
+
+const companyId = localStorage.getItem("companyId");
+const userEmail = localStorage.getItem("userEmail");
+
+// Header'da mail göster
+if (userEmail) {
+    document.getElementById("header-email").textContent = userEmail;
+}
+
+// companyId yoksa login/register'a geri gönder
+if (!companyId) {
+    alert("Şirket bilgisi bulunamadı. Lütfen tekrar giriş yapın.");
+    window.location.href = "login.html";
+}
+
+// Çıkış butonu
+document.getElementById("btn-logout").addEventListener("click", () => {
+    localStorage.clear();
+    window.location.href = "login.html";
+});
+
+// Yeni tur ekle butonu
+document.getElementById("btn-add-tour").addEventListener("click", () => {
+    window.location.href = "test.html?companyId=" + encodeURIComponent(companyId);
+});
+
+async function loadCompany() {
+    const msg = document.getElementById("company-msg");
+    msg.textContent = "";
+
+    try {
+        const res = await fetch(`${API_BASE}/company/${companyId}`);
+        if (!res.ok) {
+            msg.textContent = "Şirket bilgileri alınamadı.";
+            msg.classList.add("error");
+            return;
+        }
+        const c = await res.json();
+        document.getElementById("c-name").textContent    = c.name || "-";
+        document.getElementById("c-tursab").textContent  = c.tursabNo || "-";
+        document.getElementById("c-email").textContent   = c.email || "-";
+        document.getElementById("c-phone").textContent   = c.phoneNo || "-";
+        document.getElementById("c-address").textContent = c.address || "-";
+    } catch (err) {
+        console.error("Company load error:", err);
+        msg.textContent = "Sunucu hatası (company).";
+        msg.classList.add("error");
+    }
+}
+
+async function loadCompanyTours() {
+    const msg = document.getElementById("tours-msg");
+    const tbody = document.getElementById("tours-body");
+    msg.textContent = "";
+    tbody.innerHTML = "<tr><td colspan='5'>Yükleniyor...</td></tr>";
+
+    try {
+        const res = await fetch(`${API_BASE}/tours/by-company/${companyId}`);
+        if (!res.ok) {
+            tbody.innerHTML = "<tr><td colspan='5'>Turlar yüklenemedi.</td></tr>";
+            msg.textContent = "Turlar alınırken hata oluştu.";
+            msg.classList.add("error");
+            return;
+        }
+
+        const tours = await res.json();
+        if (!tours || tours.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='5'>Bu şirkete ait tur bulunmuyor. Yeni tur ekleyebilirsiniz.</td></tr>";
+            return;
+        }
+
+        tbody.innerHTML = "";
+        tours.forEach(tour => {
+            const tr = document.createElement("tr");
+
+            const tourId = tour.id || tour.tourId;
+            const name = tour.packageName || tour.tourName || "Tur";
+            const type = tour.tourType || "";
+            const duration = tour.duration != null ? tour.duration + " gece" : "-";
+            const basePrice = tour.basePrice || tour.price || "-";
+
+            tr.innerHTML = `
+                <td>${name}</td>
+                <td>${type}</td>
+                <td>${duration}</td>
+                <td>${basePrice} TL</td>
+                <td class="text-right">
+                    <button class="btn-secondary btn-packages" data-id="${tourId}">Paketler</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Sadece Paketler butonunu dinle
+        tbody.addEventListener("click", (e) => {
+            const btn = e.target;
+            if (btn.matches(".btn-packages")) {
+                const tourId = btn.getAttribute("data-id");
+                window.location.href = "packages.html?tourId=" + encodeURIComponent(tourId);
+            }
+        });
+
+    } catch (err) {
+        console.error("Company tours load error:", err);
+        tbody.innerHTML = "<tr><td colspan='5'>Sunucu hatası.</td></tr>";
+        msg.textContent = "Sunucu hatası (turlar).";
+        msg.classList.add("error");
+    }
+}
+
+// Sayfa açıldığında verileri çek
+loadCompany();
+loadCompanyTours();
+</script>
+
+
+</body>
+</html>
