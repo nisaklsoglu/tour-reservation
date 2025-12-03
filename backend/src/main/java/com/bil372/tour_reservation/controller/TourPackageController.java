@@ -1,9 +1,17 @@
 package com.bil372.tour_reservation.controller;
 
+import com.bil372.tour_reservation.dto.AddFlightRequest;
 import com.bil372.tour_reservation.dto.AddHotelRequest;
+import com.bil372.tour_reservation.entity.Flight;
+import com.bil372.tour_reservation.entity.FlightPackage;
 import com.bil372.tour_reservation.entity.TourPackage;
+import com.bil372.tour_reservation.repository.FlightPackageRepository;
+import com.bil372.tour_reservation.repository.FlightRepository;
+import com.bil372.tour_reservation.repository.HotelRepository;
+import com.bil372.tour_reservation.repository.TourPackageRepository;
 import com.bil372.tour_reservation.service.TourPackageService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +27,52 @@ public class TourPackageController {
 
     public TourPackageController(TourPackageService tourPackageService){
         this.tourPackageService = tourPackageService;
+    }
+    @Autowired
+    private TourPackageRepository tourPackageRepository;
+
+    @Autowired
+    private FlightRepository flightRepository;
+
+    @Autowired
+    private FlightPackageRepository flightPackageRepository;
+    
+    @Autowired
+    private HotelRepository hotelRepository;
+    
+  
+
+    // --- UÇUŞ PAKETİ EKLEME ENDPOINT'İ ---
+    @PostMapping("/add-flight")
+    public ResponseEntity<?> addFlightToPackage(@RequestBody AddFlightRequest request) {
+        try {
+            // 1. Paketi Bul
+            TourPackage tPackage = tourPackageRepository.findById(request.getPackageId())
+                    .orElseThrow(() -> new RuntimeException("Paket bulunamadı!"));
+
+            // 2. Uçuşu Bul
+            Flight flight = flightRepository.findById(request.getFlightId())
+                    .orElseThrow(() -> new RuntimeException("Uçuş bulunamadı!"));
+
+            // 3. İlişkiyi Kur
+            FlightPackage fp = new FlightPackage();
+            fp.setTourPackage(tPackage);
+            fp.setFlight(flight);
+            fp.setFlightType(request.getFlightType()); // "Gidiş", "Dönüş"
+            fp.setDepartureDate(request.getDepartureDate());
+            fp.setDepartureTime(request.getDepartureTime());
+            fp.setArrivalTime(request.getArrivalTime());
+            fp.setDuration(request.getDuration());
+
+            // 4. Kaydet
+            flightPackageRepository.save(fp);
+
+            return ResponseEntity.ok("Uçuş pakete eklendi!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Hata: " + e.getMessage());
+        }
     }
 
     @GetMapping("/by-price-range")

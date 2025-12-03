@@ -65,6 +65,25 @@ public class FlightPackage {
     // Yeni Nesne Getter'ları
     public Flight getFlight() { return flight; }
     public void setFlight(Flight flight) { this.flight = flight; }
+
+
+    // --- EKSİK OLAN GETTER VE SETTER'LAR ---
+
+    public TourPackage getTourPackage() {
+        return tourPackage;
+    }
+
+    public void setTourPackage(TourPackage tourPackage) {
+        this.tourPackage = tourPackage;
+        // İpucu: Nesne set edildiğinde ID'yi de otomatik dolduralım ki veritabanı hata vermesin
+        if (tourPackage != null) {
+            this.packageId = tourPackage.getPackageId(); // TourPackage'daki ID getter ismine dikkat et!
+        }
+    }
+
+    // Flight için setter'ı da güncelleyelim (Otomatik ID ataması için)
+    
+    
 }
 
 class FlightPackageId implements Serializable {

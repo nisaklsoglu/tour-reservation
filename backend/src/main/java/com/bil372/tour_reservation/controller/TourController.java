@@ -43,6 +43,7 @@ public class TourController {
     public List<Tour> getTopRatedTours() {
         return tourService.getTopRatedTours();
     }
+    
     // --- TEKİL İŞLEMLER ---
     
     // Tek Bir Turu Getir (ID ile)
@@ -77,4 +78,5 @@ public class TourController {
         return tourService.getToursByCompany(companyId);
     }
 
+    
 }
