@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Kayıt Ol</title>
     <style>
         body {
@@ -37,8 +37,11 @@
             border: 1px solid #ddd;
             font-family: inherit;
         }
-        textarea { resize: vertical; min-height: 70px; }
-        .btn-primary, .btn-secondary {
+        textarea { 
+            resize: vertical; 
+            min-height: 70px; 
+        }
+        .btn-primary {
             width: 100%;
             margin-top: 18px;
             padding: 12px;
@@ -46,18 +49,23 @@
             border-radius: 6px;
             font-size: 16px;
             cursor: pointer;
+            background: #28a745; 
+            color: #fff; 
         }
-        .btn-primary { background: #28a745; color: #fff; }
-        .btn-primary:hover { background: #218838; }
-        .btn-secondary { background: #6c757d; color: #fff; }
-        .btn-secondary:hover { background: #5a6268; }
+        .btn-primary:hover { 
+            background: #218838; 
+        }
         .message {
             margin-top: 15px;
             text-align: center;
             font-size: 14px;
         }
-        .message.error { color: #e74c3c; }
-        .message.success { color: #27ae60; }
+        .message.error { 
+            color: #e74c3c; 
+        }
+        .message.success { 
+            color: #27ae60; 
+        }
         .step {
             margin-top: 20px;
             border-top: 1px solid #eee;
@@ -83,7 +91,12 @@
         .link-row a:hover {
             text-decoration: underline;
         }
-        #company-section { display: none; }
+
+        /* 🔴 Hatalı input görünümü */
+        .input-error {
+            border: 2px solid #e74c3c !important;
+            background: #fdecea;
+        }
     </style>
 </head>
 <body>
@@ -91,57 +104,57 @@
 <div class="container">
     <h2>Kayıt Ol</h2>
 
-    <!-- ADIM 1: Kullanıcı kaydı -->
-    <form id="register-form">
+    <!-- 🔑 Browser'ın kendi validation'ını kapatıyoruz -->
+    <form id="register-form" novalidate>
+        <!-- KULLANICI BİLGİLERİ -->
         <label for="reg-email">E-posta</label>
-        <input type="email" id="reg-email" required placeholder="ornek@mail.com">
+        <input type="text" id="reg-email" placeholder="ornek@mail.com">
 
         <label for="reg-password">Şifre</label>
-        <input type="password" id="reg-password" required placeholder="En az 6 karakter">
+        <input type="password" id="reg-password" placeholder="En az 6 karakter">
 
         <label for="reg-password2">Şifre (Tekrar)</label>
-        <input type="password" id="reg-password2" required placeholder="Şifrenizi tekrar girin">
+        <input type="password" id="reg-password2" placeholder="Şifrenizi tekrar girin">
 
+        <!-- HESAP TİPİ SEÇİMİ -->
+        <div class="step">
+            <h3>Hesap Tipi</h3>
+            <p style="text-align:center;">Bu mail ile bireysel kullanıcı mı yoksa şirket hesabı mı açmak istiyorsun?</p>
+            <div class="radio-row">
+                <label><input type="radio" name="role" value="user" checked> Bireysel Kullanıcı</label>
+                <label><input type="radio" name="role" value="company"> Şirket Hesabı</label>
+            </div>
+        </div>
+
+        <!-- ŞİRKET FORMU (başta gizli) -->
+        <div id="company-section" style="display:none;">
+            <h3>Şirket Bilgileri</h3>
+
+            <label for="c-tursab">TÜRSAB No</label>
+            <!-- tam 5 rakam, sadece rakam -->
+            <input type="text" id="c-tursab" placeholder="Örn: 12345" maxlength="5">
+
+            <label for="c-name">Şirket Adı</label>
+            <!-- max 50 karakter -->
+            <input type="text" id="c-name" placeholder="Örn: BlueSky Tours" maxlength="50">
+
+            <label for="c-email">Şirket E-posta</label>
+            <input type="text" id="c-email" placeholder="sirket@mail.com">
+
+            <label for="c-phone">Telefon</label>
+            <!-- max 16 karakter ( + işareti + 15 rakam ) -->
+            <input type="text" id="c-phone" placeholder="+90555..." maxlength="16">
+
+            <label for="c-address">Adres</label>
+            <!-- max 250 karakter -->
+            <textarea id="c-address" placeholder="Şirket adresi" maxlength="250"></textarea>
+        </div>
+
+        <!-- TEK BUTON -->
         <button class="btn-primary" type="submit">Kayıt Ol</button>
     </form>
 
     <div id="msg-step1" class="message"></div>
-
-    <!-- ADIM 2: Hesap tipi seçimi -->
-    <div id="step2" class="step" style="display:none;">
-        <h3>Hesap Tipi Seç</h3>
-        <p style="text-align:center;">Bu mail ile bireysel kullanıcı mı yoksa şirket hesabı mı açmak istiyorsun?</p>
-
-        <div class="radio-row">
-            <label><input type="radio" name="role" value="user" checked> Bireysel Kullanıcı</label>
-            <label><input type="radio" name="role" value="company"> Şirket Hesabı</label>
-        </div>
-
-        <button class="btn-secondary" id="btn-continue">Devam Et</button>
-
-        <!-- Şirket formu -->
-        <div id="company-section">
-            <h3>Şirket Bilgileri</h3>
-
-            <label for="c-tursab">TÜRSAB No</label>
-            <input type="text" id="c-tursab" placeholder="Örn: A1234" required>
-
-            <label for="c-name">Şirket Adı</label>
-            <input type="text" id="c-name" placeholder="Örn: BlueSky Tours" required>
-
-            <label for="c-email">Şirket E-posta</label>
-            <input type="email" id="c-email" placeholder="sirket@mail.com" required>
-
-            <label for="c-phone">Telefon</label>
-            <input type="text" id="c-phone" placeholder="+90555..." required>
-
-            <label for="c-address">Adres</label>
-            <textarea id="c-address" placeholder="Şirket adresi"></textarea>
-
-            <button class="btn-primary" id="btn-company-save">Şirket Olarak Kaydet</button>
-            <div id="msg-company" class="message"></div>
-        </div>
-    </div>
 
     <div class="link-row">
         Zaten hesabın var mı? <a href="login.html">Giriş yap</a>
@@ -153,28 +166,174 @@
 
     let createdUserId = null;
 
-    // 1. ADIM: Kullanıcı kaydı
+    // Regex'ler
+    const emailRegex  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;   // basit e-posta kontrolü
+    const phoneRegex  = /^\+?\d{10,15}$/;               // +90555... / 0555...
+    const tursabRegex = /^\d{5}$/;                      // tam 5 rakam
+
+    const companySection = document.getElementById("company-section");
+    const msgBox = document.getElementById("msg-step1");
+
+    // 🔧 Error helper'ları
+    function markError(input) {
+        if (input) input.classList.add("input-error");
+    }
+
+    function clearErrors() {
+        document.querySelectorAll(".input-error").forEach(el => {
+            el.classList.remove("input-error");
+        });
+    }
+
+    // Hesap tipi değişince şirket bölümünü göster/gizle
+    document.querySelectorAll('input[name="role"]').forEach(radio => {
+        radio.addEventListener("change", () => {
+            const role = document.querySelector('input[name="role"]:checked').value;
+            if (role === "company") {
+                companySection.style.display = "block";
+
+                // Kullanıcı e-mail'i yazılmışsa şirket mailine kopyala (boşsa)
+                const mainEmail = document.getElementById("reg-email").value.trim();
+                const cEmailInput = document.getElementById("c-email");
+                if (mainEmail && !cEmailInput.value) {
+                    cEmailInput.value = mainEmail;
+                }
+            } else {
+                companySection.style.display = "none";
+            }
+        });
+    });
+
+    // TÜRSAB alanına sadece rakam yazılsın
+    document.getElementById("c-tursab").addEventListener("input", (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
+    });
+
+    // FORM SUBMIT
     document.getElementById("register-form").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const msg = document.getElementById("msg-step1");
-        msg.textContent = "";
-        msg.className = "message";
+        clearErrors();
+        msgBox.textContent = "";
+        msgBox.className = "message";
 
-        const email = document.getElementById("reg-email").value.trim();
-        const password = document.getElementById("reg-password").value.trim();
+        const email     = document.getElementById("reg-email").value.trim();
+        const password  = document.getElementById("reg-password").value.trim();
         const password2 = document.getElementById("reg-password2").value.trim();
+        const role      = document.querySelector('input[name="role"]:checked').value;
 
+        const emailInput = document.getElementById("reg-email");
+        const passInput  = document.getElementById("reg-password");
+        const pass2Input = document.getElementById("reg-password2");
+
+        // --- Kullanıcı alanları validation ---
         if (!email || !password || !password2) {
-            msg.textContent = "Lütfen tüm alanları doldurun.";
-            msg.classList.add("error");
-            return;
-        }
-        if (password !== password2) {
-            msg.textContent = "Şifreler uyuşmuyor.";
-            msg.classList.add("error");
+            msgBox.textContent = "Lütfen tüm kullanıcı alanlarını doldurun.";
+            msgBox.classList.add("error");
+            if (!email)    markError(emailInput);
+            if (!password) markError(passInput);
+            if (!password2)markError(pass2Input);
             return;
         }
 
+        if (!emailRegex.test(email)) {
+            msgBox.textContent = "Lütfen geçerli bir e-posta adresi girin.";
+            msgBox.classList.add("error");
+            markError(emailInput);
+            return;
+        }
+
+        if (password.length < 6) {
+            msgBox.textContent = "Şifre en az 6 karakter olmalı.";
+            msgBox.classList.add("error");
+            markError(passInput);
+            return;
+        }
+
+        if (password !== password2) {
+            msgBox.textContent = "Şifreler uyuşmuyor.";
+            msgBox.classList.add("error");
+            markError(passInput);
+            markError(pass2Input);
+            return;
+        }
+
+        // --- Şirket hesabı ise company alanlarını da kontrol et ---
+        let companyBody = null;
+
+        if (role === "company") {
+            const tursabNo = document.getElementById("c-tursab").value.trim();
+            const cName    = document.getElementById("c-name").value.trim();
+            const cEmail   = document.getElementById("c-email").value.trim();
+            const cPhone   = document.getElementById("c-phone").value.trim();
+            const cAddr    = document.getElementById("c-address").value.trim();
+
+            const tursabInput = document.getElementById("c-tursab");
+            const cNameInput  = document.getElementById("c-name");
+            const cEmailInput = document.getElementById("c-email");
+            const cPhoneInput = document.getElementById("c-phone");
+            const cAddrInput  = document.getElementById("c-address");
+
+            // Zorunlu alanlar
+            if (!tursabNo || !cName || !cEmail || !cPhone) {
+                msgBox.textContent = "TÜRSAB No, Şirket adı, Şirket e-posta ve Telefon zorunludur.";
+                msgBox.classList.add("error");
+                if (!tursabNo) markError(tursabInput);
+                if (!cName)    markError(cNameInput);
+                if (!cEmail)   markError(cEmailInput);
+                if (!cPhone)   markError(cPhoneInput);
+                return;
+            }
+
+            // TÜRSAB: tam 5 rakam
+            if (!tursabRegex.test(tursabNo)) {
+                msgBox.textContent = "TÜRSAB No tam 5 haneli ve sadece rakamlardan oluşmalıdır.";
+                msgBox.classList.add("error");
+                markError(tursabInput);
+                return;
+            }
+
+            // Şirket adı: max 50 karakter
+            if (cName.length > 50) {
+                msgBox.textContent = "Şirket adı en fazla 50 karakter olabilir.";
+                msgBox.classList.add("error");
+                markError(cNameInput);
+                return;
+            }
+
+            // Şirket e-posta
+            if (!emailRegex.test(cEmail)) {
+                msgBox.textContent = "Lütfen geçerli bir şirket e-posta adresi girin.";
+                msgBox.classList.add("error");
+                markError(cEmailInput);
+                return;
+            }
+
+            // Telefon
+            if (!phoneRegex.test(cPhone)) {
+                msgBox.textContent = "Lütfen geçerli bir telefon numarası girin. (Örn: +905551112233)";
+                msgBox.classList.add("error");
+                markError(cPhoneInput);
+                return;
+            }
+
+            // Adres: max 250 karakter
+            if (cAddr.length > 250) {
+                msgBox.textContent = "Adres en fazla 250 karakter olabilir.";
+                msgBox.classList.add("error");
+                markError(cAddrInput);
+                return;
+            }
+
+            companyBody = {
+                tursabNo,
+                name: cName,
+                email: cEmail,
+                phoneNo: cPhone,
+                address: cAddr
+            };
+        }
+
+        // --- 1. istek: Kullanıcı kaydı ---
         try {
             const res = await fetch(`${API_BASE}/auth/register`, {
                 method: "POST",
@@ -185,8 +344,8 @@
             const text = await res.text();
 
             if (!res.ok) {
-                msg.textContent = text || "Kayıt başarısız.";
-                msg.classList.add("error");
+                msgBox.textContent = text || "Kayıt başarısız.";
+                msgBox.classList.add("error");
                 return;
             }
 
@@ -196,99 +355,49 @@
             localStorage.setItem("userEmail", data.email);
             localStorage.setItem("isLoggedIn", "true");
 
-            msg.textContent = "Kullanıcı kaydı başarılı! Şimdi hesap tipini seç.";
-            msg.classList.add("success");
+            // Bireysel kullanıcı ise burada bitiyor
+            if (role === "user") {
+                msgBox.textContent = "Kayıt başarılı! Bireysel kullanıcı olarak devam ediyorsun.";
+                msgBox.classList.add("success");
 
-            // Şirket e-posta kutusunu otomatik doldur
-            document.getElementById("c-email").value = email;
-
-            // Adım 2'yi göster
-            document.getElementById("step2").style.display = "block";
-
-        } catch (err) {
-            console.error(err);
-            msg.textContent = "Sunucu hatası veya backend kapalı olabilir.";
-            msg.classList.add("error");
-        }
-    });
-
-    // "Devam Et" butonu: rol seçimine göre hareket
-    document.getElementById("btn-continue").addEventListener("click", () => {
-        const role = document.querySelector('input[name="role"]:checked').value;
-
-        if (role === "user") {
-            // Bireysel kullanıcı: direkt ana sayfaya
-            alert("Kayıt tamamlandı! Bireysel kullanıcı olarak devam ediyorsun.");
-            window.location.href = "index.html";
-        } else {
-            // Şirket seçildiyse şirket formunu aç
-            document.getElementById("company-section").style.display = "block";
-        }
-    });
-
-    // Şirket kaydı
-    document.getElementById("btn-company-save").addEventListener("click", async () => {
-        const msg = document.getElementById("msg-company");
-        msg.textContent = "";
-        msg.className = "message";
-
-        if (!createdUserId) {
-            msg.textContent = "Önce kullanıcı kaydının tamamlanması gerekiyor.";
-            msg.classList.add("error");
-            return;
-        }
-
-        const tursabNo = document.getElementById("c-tursab").value.trim();
-        const name = document.getElementById("c-name").value.trim();
-        const email = document.getElementById("c-email").value.trim();
-        const phoneNo = document.getElementById("c-phone").value.trim();
-        const address = document.getElementById("c-address").value.trim();
-
-        if (!tursabNo || !name || !email) {
-            msg.textContent = "TÜRSAB No, Şirket adı ve E-posta zorunludur.";
-            msg.classList.add("error");
-            return;
-        }
-
-        const body = {
-            userId: createdUserId,
-            tursabNo,
-            name,
-            email,
-            phoneNo,
-            address
-        };
-
-        try {
-            const res = await fetch(`${API_BASE}/company/register`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body)
-            });
-
-            const text = await res.text();
-
-            if (!res.ok) {
-                msg.textContent = text || "Şirket kaydı başarısız.";
-                msg.classList.add("error");
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 1000);
                 return;
             }
 
-            const data = JSON.parse(text); // {id, userId, ...}
-            localStorage.setItem("companyId", data.id);
+            // --- 2. istek: Şirket kaydı ---
+            companyBody.userId = createdUserId;
+
+            const resComp = await fetch(`${API_BASE}/company/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(companyBody)
+            });
+
+            const textComp = await resComp.text();
+
+            if (!resComp.ok) {
+                msgBox.textContent = textComp || "Şirket kaydı başarısız.";
+                msgBox.classList.add("error");
+                return;
+            }
+
+            const dataComp = JSON.parse(textComp); // {id, userId, ...}
+            localStorage.setItem("companyId", dataComp.id);
             localStorage.setItem("isCompany", "true");
 
-            msg.textContent = "Şirket kaydı başarılı! Şirket paneline yönlendiriliyorsun.";
-            msg.classList.add("success");
+            msgBox.textContent = "Şirket kaydı başarılı! Şirket paneline yönlendiriliyorsun.";
+            msgBox.classList.add("success");
 
             setTimeout(() => {
-                window.location.href = "company.html";   // yeni yapacağımız sayfa
+                window.location.href = "company.html";
             }, 1200);
 
         } catch (err) {
             console.error(err);
-            msg.textContent = "Sunucu hatası veya backend kapalı olabilir.";
-            msg.classList.add("error");
+            msgBox.textContent = "Sunucu hatası veya backend kapalı olabilir.";
+            msgBox.classList.add("error");
         }
     });
 </script>

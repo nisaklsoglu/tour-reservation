@@ -77,5 +77,8 @@ public class TourController {
         return tourService.getToursByCompany(companyId);
     }
 
-    
+    @GetMapping("/top-rated")
+    public List<Tour> getTopRatedTours() {
+        return tourService.getTopRatedTours();
+    }
 }
