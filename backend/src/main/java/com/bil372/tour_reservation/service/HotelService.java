@@ -2,12 +2,14 @@ package com.bil372.tour_reservation.service;
 
 import com.bil372.tour_reservation.dto.AddHotelRequest;
 import com.bil372.tour_reservation.dto.AddHotelRequest;
-import com.bil372.tour_reservation.dto.HotelCreateRequest;
 import com.bil372.tour_reservation.entity.Hotel;
 import com.bil372.tour_reservation.entity.HotelPackage;
 import com.bil372.tour_reservation.repository.HotelPackageRepository;
 import com.bil372.tour_reservation.repository.HotelRepository;
 import com.bil372.tour_reservation.repository.TourPackageRepository;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,13 +28,7 @@ public class HotelService {
     }
 
     // --- 1. SIFIRDAN OTEL EKLEME ---
-    public Hotel createHotel(HotelCreateRequest request) {
-        Hotel h = new Hotel();
-        h.setHotelName(request.getName());
-        h.setHotelAddress(request.getAddress());
-        h.setHotelRate(request.getRate());
-        return hotelRepository.save(h);
-    }
+   
 
     // --- 2. VAR OLAN OTELİ PAKETE BAĞLAMA ---
     public void addHotelToPackage(AddHotelRequest request) {
@@ -51,5 +47,24 @@ public class HotelService {
         hp.setExitDate(request.getExitDate());
 
         hotelPackageRepository.save(hp);
+    }
+    // 1. Tüm Otelleri Getir
+    public List<Hotel> getAllHotels() {
+        return hotelRepository.findAll();
+    }
+
+    // 2. Şehre Göre Ara
+    public List<Hotel> searchByCity(String city) {
+        return hotelRepository.findByHotelAddressContainingIgnoreCase(city);
+    }
+
+    // 3. Yeni Otel Kaydet (Controller'da save çağırmıştık)
+    public Hotel save(Hotel hotel) {
+        return hotelRepository.save(hotel);
+    }
+    
+    // 4. ID ile bul (Pakete eklerken lazım olabilir)
+    public boolean existsById(Integer id) {
+        return hotelRepository.existsById(id);
     }
 }

@@ -1,5 +1,6 @@
 package com.bil372.tour_reservation.controller;
 
+import com.bil372.tour_reservation.dto.AddHotelRequest;
 import com.bil372.tour_reservation.entity.TourPackage;
 import com.bil372.tour_reservation.service.TourPackageService;
 
@@ -94,5 +95,11 @@ public class TourPackageController {
     @GetMapping("/by-availability")
     public List<TourPackage> getPackagesByAvailability(@RequestParam("seats") Integer seats) {
         return tourPackageService.getPackagesByAvailableSeats(seats);
+    }
+    // POST /api/tour-packages/add-hotel
+    @PostMapping("/add-hotel")
+    public ResponseEntity<String> addHotel(@RequestBody AddHotelRequest request) {
+        tourPackageService.addHotelToPackage(request);
+        return ResponseEntity.ok("Otel pakete eklendi! 🏨");
     }
 }

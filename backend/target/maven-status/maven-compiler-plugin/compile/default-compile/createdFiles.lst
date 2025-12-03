@@ -10,7 +10,6 @@ com\bil372\tour_reservation\entity\FlightPackageId.class
 com\bil372\tour_reservation\repository\DestinationRepository.class
 com\bil372\tour_reservation\repository\FlightPackageRepository.class
 com\bil372\tour_reservation\repository\HotelRepository.class
-com\bil372\tour_reservation\dto\HotelCreateRequest.class
 com\bil372\tour_reservation\TourReservationApplication.class
 com\bil372\tour_reservation\service\TourService.class
 com\bil372\tour_reservation\service\ReviewService.class
