@@ -7,13 +7,14 @@ const USER_ID = localStorage.getItem("userId");
 const USER_EMAIL = localStorage.getItem("userEmail");
 const IS_LOGGED_IN = localStorage.getItem("isLoggedIn") === "true";
 
+// 🔴 Kullanıcının yorum yaptığı tur ID’lerini tutacağız
+let REVIEWED_TOUR_IDS = new Set();
+
 // Eğer kullanıcı giriş yapmamışsa login sayfasına at
 if (!IS_LOGGED_IN || !USER_ID) {
     alert("Bu sayfayı görmek için lütfen giriş yapın.");
     window.location.href = "login.html";
 }
-
-
 
 function formatDateTime(value) {
     if (!value) return "-";
@@ -46,10 +47,13 @@ function renderReservationCard(r) {
     const tourId = tour.tourId || pkg.tourId || pkg.packageId || null;
     const detailId = tourId || "";
 
+    // 🔴 Bu tura zaten yorum yapılmış mı?
+    const hasReviewForThisTour = !!review || (tourId && REVIEWED_TOUR_IDS.has(tourId));
+
     let reviewHtml = "";
 
     if (review) {
-        // Zaten yorum yapılmış -> sadece göster
+        // Rezervasyonun kendi üzerinde review objesi varsa ayrıntılı göster
         reviewHtml = `
             <div class="review-block">
                 <div><strong>Puan:</strong> ${review.rating} / 5</div>
@@ -57,8 +61,18 @@ function renderReservationCard(r) {
                 <small class="muted">Yorum tarihi: ${formatDateTime(review.reviewDate)}</small>
             </div>
         `;
+    } else if (hasReviewForThisTour) {
+        // Bu tura (herhangi bir rezervasyon üzerinden) zaten yorum yapılmış
+        reviewHtml = `
+            <div class="review-block">
+                <strong>Bu tura zaten yorum yaptınız.</strong>
+                <div class="muted" style="font-size:0.9em;">
+                    Aynı tura ikinci kez yorum ekleyemezsiniz.
+                </div>
+            </div>
+        `;
     } else {
-        // Henüz yorum yok -> form göster
+        // Henüz bu tura hiç yorum yok -> form göster
         reviewHtml = `
             <div class="review-form">
                 <label>Puan (1-5):</label>
@@ -187,10 +201,11 @@ function attachReviewHandlers() {
                 })
                 .then(() => {
                     alert("Yorum kaydedildi!");
-                    // Rezervasyon kartlarını güncelle (form gitsin, yorum gözüksün)
-                    loadReservations();
-                    // "Yorumlarım" listesini de yenile
-                    loadUserReviews();
+                    // "Yorumlarım" listesini yenile (set güncellensin)
+                    loadUserReviews(() => {
+                        // sonra rezervasyon kartlarını güncelle (formlar kaybolsun)
+                        loadReservations();
+                    });
                 })
                 .catch((err) => {
                     console.error(err);
@@ -238,11 +253,10 @@ function loadReservations() {
  * Kullanıcının yaptığı tüm yorumları çeker ve #user-reviews-container içine basar.
  * GET /api/users/{USER_ID}/reviews
  */
-function loadUserReviews() {
+function loadUserReviews(callback) {
     if (!reviewsContainer) return;
 
     reviewsContainer.innerHTML = `
-        <h2>Yorumlarım</h2>
         <p class="muted">Yükleniyor...</p>
     `;
 
@@ -254,42 +268,102 @@ function loadUserReviews() {
             return res.json();
         })
         .then(list => {
-            reviewsContainer.innerHTML = `<h2>Yorumlarım</h2>`;
+            // 🔴 Burada set’i güncelliyoruz
+            REVIEWED_TOUR_IDS = new Set(
+                (list || [])
+                    .map(r => (r.tour && r.tour.tourId) ? r.tour.tourId : null)
+                    .filter(id => id !== null)
+            );
+
+            reviewsContainer.innerHTML = "";
 
             if (!list || list.length === 0) {
-                reviewsContainer.innerHTML += `<p class="muted">Henüz yorum yapmadınız.</p>`;
-                return;
+                reviewsContainer.innerHTML = `<p class="muted">Henüz yorum yapmadınız.</p>`;
+            } else {
+                list.forEach(review => {
+                    reviewsContainer.innerHTML += renderUserReviewCard(review);
+                });
             }
 
-            list.forEach(review => {
-                reviewsContainer.innerHTML += renderUserReviewCard(review);
-            });
+            if (typeof callback === "function") {
+                callback();
+            }
         })
         .catch(err => {
             console.error(err);
             reviewsContainer.innerHTML = `
-                <h2>Yorumlarım</h2>
                 <p style="color:red">Hata: ${err.message}</p>
             `;
+            if (typeof callback === "function") {
+                callback();
+            }
         });
 }
 
-// Sayfa yüklendiğinde hem rezervasyonlar hem "Yorumlarım" çekilsin
+// ---- ÇIKIŞ YAP ----
+function setupLogout() {
+    const logoutBtn = document.getElementById("logout-btn");
+    if (!logoutBtn) return;
+
+    logoutBtn.addEventListener("click", () => {
+        if (confirm("Oturumu kapatmak istiyor musunuz?")) {
+            localStorage.removeItem("userId");
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("companyId");
+            localStorage.removeItem("isCompany");
+            window.location.href = "login.html";
+        }
+    });
+}
+
+// Sayfa yüklendiğinde:
 document.addEventListener("DOMContentLoaded", () => {
-    // Header'daki email'i doldur
     const emailEl = document.getElementById("user-email");
     const nameEl = document.getElementById("user-name");
+    const avatarEl = document.getElementById("user-avatar");
 
     if (emailEl && USER_EMAIL) {
         emailEl.textContent = USER_EMAIL;
     }
-    // Şimdilik isim backend'den gelmediği için sadece sabit bırakıyoruz,
-    // ileride login cevabına "name" eklersen localStorage.setItem("userName", ...) deyip buraya okuyabilirsin.
 
-    // Verileri yükle
-    loadReservations();
-    if (typeof loadUserReviews === "function") {
-        loadUserReviews();
+    // isim yoksa email'in @ öncesini isim gibi kullan
+    if (nameEl) {
+        if (USER_EMAIL) {
+            const approxName = USER_EMAIL.split("@")[0];
+            nameEl.textContent = approxName;
+        } else {
+            nameEl.textContent = "Kullanıcı";
+        }
+    }
+
+    // 🔴 Profil fotoğrafını sabit default görsel yap
+    if (avatarEl) {
+        // Buradaki yolu kendi projenin klasör yapısına göre ayarla
+        avatarEl.src = "profile_picture.jpg";
+    }
+
+    setupLogout();
+
+    // 1) Önce yorumlar -> REVIEWED_TOUR_IDS dolsun
+    // 2) Sonra rezervasyonlar -> form / "zaten yorum yaptınız" mantığı doğru çalışsın
+    loadUserReviews(() => {
+        loadReservations();
+    });
+
+
+    // ÇIKIŞ YAP BUTONU 
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+            localStorage.removeItem("userId");
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("isLoggedIn");
+            localStorage.removeItem("isCompany");
+            localStorage.removeItem("companyId");
+
+            alert("Başarıyla çıkış yapıldı!");
+            window.location.href = "register.html";
+        });
     }
 });
-

@@ -6,6 +6,7 @@ import com.bil372.tour_reservation.entity.User;
 import com.bil372.tour_reservation.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -18,13 +19,17 @@ public class AuthController {
         this.userService = userService;
     }
 
-    // --------- REGISTER ENDPOINT ---------
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+    
 
-        if (request.getEmail() == null || request.getEmail().isBlank()
-                || request.getPassword() == null || request.getPassword().isBlank()) {
-            return ResponseEntity.badRequest().body("Email ve şifre zorunludur.");
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+
+        // Artık email formatını ve boş olup olmadığını
+        // RegisterRequest içindeki @Email ve @NotBlank kontrol ediyor.
+        // İstersen şifre için ekstra manuel kontrol bırakabilirsin:
+
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            return ResponseEntity.badRequest().body("Şifre zorunludur.");
         }
 
         try {
@@ -43,6 +48,7 @@ public class AuthController {
             return ResponseEntity.internalServerError().body("Sunucu hatası");
         }
     }
+
 
     // --------- LOGIN ENDPOINT ---------
     @PostMapping("/login")
@@ -73,4 +79,6 @@ public class AuthController {
             return ResponseEntity.internalServerError().body("Sunucu hatası");
         }
     }
+
+    
 }

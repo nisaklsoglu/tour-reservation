@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 //import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 @CrossOrigin(origins = "*")
 public class ReviewController {
 
@@ -28,7 +28,7 @@ public class ReviewController {
     }
 
     // FRONTEND: POST /api/users/{userId}/tours/{tourId}/review
-    @PostMapping("/{userId}/tours/{tourId}/review")
+    @PostMapping("/users/{userId}/tours/{tourId}/review")
     public ResponseEntity<Review> addReview(
             @PathVariable Integer userId,
             @PathVariable Integer tourId,
@@ -40,16 +40,17 @@ public class ReviewController {
 
     // TUR DETAY: GET /api/users/tours/{tourId}/reviews (istersen sonra başka controller'a taşırsın)
     @GetMapping("/tours/{tourId}/reviews")
-    public ResponseEntity<List<Review>> getReviewsForTour(@PathVariable Integer tourId) {
-        List<Review> list = reviewRepository.findByTour_TourId(tourId);
-        return ResponseEntity.ok(list);
+    public List<Review> getReviewsForTour(@PathVariable Integer tourId) {
+        return reviewService.getReviewsByTour(tourId);
     }
 
-    // GET /api/users/{userId}/reviews  -> Bu kullanıcının yaptığı tüm yorumlar
-    @GetMapping("/{userId}/reviews")
-    public ResponseEntity<List<Review>> getUserReviews(@PathVariable Integer userId) {
-        List<Review> list = reviewService.getReviewsByUser(userId);
-        return ResponseEntity.ok(list);
+    // Kullanıcının tüm yorumları
+    @GetMapping("/users/{userId}/reviews")
+    public List<Review> getReviewsByUser(@PathVariable Integer userId) {
+        return reviewService.getReviewsByUser(userId);
     }
+
+  
+
     
 }

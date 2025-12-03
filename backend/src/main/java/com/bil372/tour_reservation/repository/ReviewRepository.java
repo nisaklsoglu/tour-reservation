@@ -39,4 +39,5 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
     // Belirli bir user’ın yaptığı tüm yorumlar
     List<Review> findByUser_Id(Integer userId);
 
+
 }

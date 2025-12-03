@@ -4,18 +4,84 @@
     <meta charset="UTF-8">
     <title>Güvenli Ödeme</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .payment-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 400px; }
-        h2 { text-align: center; color: #333; margin-bottom: 20px; }
-        .amount-display { text-align: center; font-size: 24px; color: #27ae60; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        
-        label { display: block; margin-top: 10px; font-weight: bold; color: #555; }
-        input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        
-        .row { display: flex; gap: 10px; }
-        
-        .btn-pay { width: 100%; background: #2c3e50; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 18px; margin-top: 25px; cursor: pointer; transition: 0.3s; }
-        .btn-pay:hover { background: #34495e; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .payment-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .amount-display {
+            text-align: center;
+            font-size: 24px;
+            color: #27ae60;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            outline: none;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        /* ✅ Validasyon renkleri */
+        input.error {
+            border-color: #e74c3c;
+            background-color: #fdecea;
+        }
+        input.valid {
+            border-color: #27ae60;
+            background-color: #e8f8f0;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-pay {
+            width: 100%;
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            margin-top: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-pay:hover {
+            background: #34495e;
+        }
     </style>
 </head>
 <body>
@@ -26,7 +92,7 @@
 
         <form onsubmit="return false;">
             <label>Kart Üzerindeki İsim</label>
-            <input type="text" id="cardName" placeholder="Ad Soyad">
+            <input type="text" id="cardName" placeholder="Ad Soyad" maxlength="50">
 
             <label>Kart Numarası</label>
             <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19">
@@ -42,32 +108,174 @@
                 </div>
             </div>
 
-            <button class="btn-pay" onclick="odemeyiTamamla()">Ödemeyi Onayla</button>
+            <button class="btn-pay" type="button" onclick="odemeyiTamamla()">Ödemeyi Onayla</button>
         </form>
     </div>
 
     <script>
-        // URL'den Rezervasyon ID ve Tutarı Al
-        const urlParams = new URLSearchParams(window.location.search);
-        const reservationId = urlParams.get('resId');
-        // Tutar verisi yoksa veya null ise 0 göster
-        const amount = urlParams.get('amount');
+        const CARD_NUMBER_REGEX = /^[0-9]{16}$/;    // Boşluksuz 16 rakam
+        const CVV_REGEX         = /^[0-9]{3}$/;     // 3 rakam
+        const EXP_REGEX         = /^(0[1-9]|1[0-2])\/\d{2}$/; // AA/YY
 
-        document.getElementById("displayAmount").innerText = amount ? `${amount} TL` : "Hesaplanıyor...";
+        function markInvalid(input) {
+            input.classList.add("error");
+            input.classList.remove("valid");
+        }
+        function markValid(input) {
+            input.classList.add("valid");
+            input.classList.remove("error");
+        }
+
+        function formatCardNumber(input) {
+            let digits = input.value.replace(/\D/g, "");       // sadece rakam
+            digits = digits.slice(0, 16);
+            const parts = [];
+            for (let i = 0; i < digits.length; i += 4) {
+                parts.push(digits.substring(i, i + 4));
+            }
+            input.value = parts.join(" ");
+        }
+
+        function isValidExpiry(value) {
+            if (!EXP_REGEX.test(value)) return false;
+
+            const [mmStr, yyStr] = value.split("/");
+            const month = parseInt(mmStr, 10);
+            const year  = 2000 + parseInt(yyStr, 10);
+
+            const now = new Date();
+            const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            const expiryMonthStart = new Date(year, month - 1, 1);
+
+            return expiryMonthStart >= thisMonthStart;
+        }
+
+        function validateCardName() {
+            const input = document.getElementById("cardName");
+            const val = input.value.trim();
+            if (!val) {
+                markInvalid(input);
+                return false;
+            }
+            if (val.length <= 50) {
+                markValid(input);
+                return true;
+            } else {
+                markInvalid(input);
+                return false;
+            }
+        }
+
+        function validateCardNumber() {
+            const input = document.getElementById("cardNumber");
+            let digits = input.value.replace(/\D/g, "");
+            if (!digits) {
+                markInvalid(input);
+                return false;
+            }
+            if (CARD_NUMBER_REGEX.test(digits)) {
+                markValid(input);
+                return true;
+            } else {
+                markInvalid(input);
+                return false;
+            }
+        }
+
+        function validateCardExp() {
+            const input = document.getElementById("cardExp");
+            const val = input.value.trim();
+            if (!val) {
+                markInvalid(input);
+                return false;
+            }
+            if (isValidExpiry(val)) {
+                markValid(input);
+                return true;
+            } else {
+                markInvalid(input);
+                return false;
+            }
+        }
+
+        function validateCardCvv() {
+            const input = document.getElementById("cardCvv");
+            const val = input.value.trim();
+            if (!val) {
+                markInvalid(input);
+                return false;
+            }
+            if (CVV_REGEX.test(val)) {
+                markValid(input);
+                return true;
+            } else {
+                markInvalid(input);
+                return false;
+            }
+        }
+
+        function runAllValidations() {
+            const v1 = validateCardName();
+            const v2 = validateCardNumber();
+            const v3 = validateCardExp();
+            const v4 = validateCardCvv();
+            return v1 && v2 && v3 && v4;
+        }
+
+        // URL'den Rezervasyon ID ve Tutarı Al + input eventleri bağla
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const amount = urlParams.get('amount');
+
+            document.getElementById("displayAmount").innerText =
+                amount ? `${amount} TL` : "Hesaplanıyor...";
+
+            const cardName   = document.getElementById("cardName");
+            const cardNumber = document.getElementById("cardNumber");
+            const cardExp    = document.getElementById("cardExp");
+            const cardCvv    = document.getElementById("cardCvv");
+
+            cardName.addEventListener("input", validateCardName);
+
+            cardNumber.addEventListener("input", () => {
+                formatCardNumber(cardNumber);
+                validateCardNumber();
+            });
+
+            cardExp.addEventListener("input", (e) => {
+                // AA/YY formatına yazarken otomatik '/' ekleyelim
+                let val = cardExp.value.replace(/[^\d]/g, "");
+                if (val.length >= 3) {
+                    val = val.slice(0, 4);
+                    val = val.slice(0, 2) + "/" + val.slice(2);
+                }
+                cardExp.value = val;
+                validateCardExp();
+            });
+
+            cardCvv.addEventListener("input", () => {
+                cardCvv.value = cardCvv.value.replace(/\D/g, "").slice(0, 3);
+                validateCardCvv();
+            });
+        });
 
         function odemeyiTamamla() {
-            if(!document.getElementById("cardNumber").value) {
-                alert("Lütfen kart bilgilerini giriniz!");
+            const urlParams = new URLSearchParams(window.location.search);
+            const reservationId = urlParams.get('resId');
+            const amount = urlParams.get('amount') || "0";
+
+            if (!runAllValidations()) {
+                alert("Lütfen kart bilgilerini kontrol edin.");
                 return;
             }
 
             const data = {
                 reservationId: parseInt(reservationId),
                 amount: parseFloat(amount),
-                cardHolderName: document.getElementById("cardName").value,
-                cardNumber: document.getElementById("cardNumber").value,
-                expireDate: document.getElementById("cardExp").value,
-                cvv: document.getElementById("cardCvv").value
+                cardHolderName: document.getElementById("cardName").value.trim(),
+                cardNumber: document.getElementById("cardNumber").value.replace(/\s+/g, ""),
+                expireDate: document.getElementById("cardExp").value.trim(),
+                cvv: document.getElementById("cardCvv").value.trim()
             };
 
             const btn = document.querySelector(".btn-pay");
@@ -80,16 +288,16 @@
                 body: JSON.stringify(data)
             })
             .then(res => {
-                if(!res.ok) throw new Error("Ödeme alınamadı!");
+                if (!res.ok) throw new Error("Ödeme alınamadı!");
                 return res.json();
             })
             .then(d => {
                 alert("✅ Ödeme Başarılı! İyi Tatiller! 🏖️");
-                window.location.href = "index.html"; // Ana sayfaya yönlendir
+                window.location.href = "index.html";
             })
             .catch(e => {
                 alert("Hata: " + e.message);
-                btn.innerText = "Tekrar Dene";
+                btn.innerText = "Ödemeyi Onayla";
                 btn.disabled = false;
             });
         }
