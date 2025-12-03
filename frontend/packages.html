@@ -76,7 +76,6 @@
     </div>
     <div style="display:flex; gap:10px;">
         <div style="flex:1"><label>Fiyat (TL):</label><input type="number" id="basePrice"></div>
-        <div style="flex:1"><label>Kontenjan:</label><input type="number" id="capacity" value="40"></div>
     </div>
     
 
@@ -85,6 +84,7 @@
         <div style="display:flex; gap:5px; align-items:end;">
             <div style="flex:3;">
                 <label>Mevcut Oteller:</label>
+                
                 <select id="hotelSelect"><option>Yükleniyor...</option></select>
             </div>
             <button class="btn btn-secondary" onclick="openModal('hotelModal')">➕ Yeni Ekle</button>
@@ -170,9 +170,9 @@
             <h3>🧢 Yeni Rehber Tanımla</h3>
             <span class="close-btn" onclick="closeModal('guideModal')">×</span>
         </div>
-        <label>Ad Soyad:</label><input type="text" id="newGName">
-        <label>Telefon:</label><input type="text" id="newGPhone">
-        <label>E-posta:</label><input type="email" id="newGEmail">
+        <label>Ad Soyad:</label><input type="text" id="newGName" >
+        <label>Telefon:</label><input type="text" id="newGPhone" placeholder="5xx xxx xx xx">
+        <label>E-posta:</label><input type="email" id="newGEmail" placeholder="ornek@sirket.com">
         <button class="btn btn-success" onclick="saveNewGuide()" style="margin-top:15px; width:100%;">Kaydet</button>
     </div>
 </div>
@@ -192,6 +192,82 @@
         loadPackages();
         loadFlights();
         loadGuides();
+
+
+        // --- 1. PNR KONTROLÜ (Anlık) ---
+    const pnrInput = document.getElementById("newFPnr");
+    if(pnrInput) { // Eğer sayfada bu input varsa çalışsın
+        pnrInput.addEventListener("input", function() {
+            // 1. Otomatik Büyüt
+            this.value = this.value.toUpperCase();
+            
+            // 2. Regex Kontrolü (6 Hane, Harf/Rakam)
+            const regex = /^[A-Z0-9]{6}$/;
+            
+            if (regex.test(this.value)) {
+                // Doğruysa YEŞİL ve kalın kenar
+                this.style.border = "2px solid #28a745"; 
+                this.style.backgroundColor = "#e8f5e9";
+            } else {
+                // Yanlışsa KIRMIZI
+                this.style.border = "2px solid #dc3545";
+                this.style.backgroundColor = "#f8d7da";
+            }
+            
+            // Boşsa rengi sıfırla (Griye dön)
+            if(this.value === "") {
+                this.style.border = "1px solid #ccc";
+                this.style.backgroundColor = "white";
+            }
+        });
+    }
+
+    // --- 2. TELEFON KONTROLÜ (Anlık) ---
+    const phoneInput = document.getElementById("newGPhone");
+    if(phoneInput) {
+        phoneInput.addEventListener("input", function() {
+            // Sadece sayı girmesine izin ver (Harfleri sil)
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Regex: 05 ile başlayan, toplam 11 hane
+            const regex = /^5[0-9]{9}$/
+
+            if (regex.test(this.value)) {
+                this.style.border = "2px solid #28a745";
+                this.style.backgroundColor = "#e8f5e9";
+            } else {
+                this.style.border = "2px solid #dc3545";
+                this.style.backgroundColor = "#f8d7da";
+            }
+
+            if(this.value === "") {
+                this.style.border = "1px solid #ccc";
+                this.style.backgroundColor = "white";
+            }
+        });
+    }
+
+    // --- 3. EMAIL KONTROLÜ (Anlık) ---
+    const emailInput = document.getElementById("newGEmail");
+    if(emailInput) {
+        emailInput.addEventListener("input", function() {
+            // Standart Email Regex'i
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (regex.test(this.value)) {
+                this.style.border = "2px solid #28a745";
+                this.style.backgroundColor = "#e8f5e9";
+            } else {
+                this.style.border = "2px solid #dc3545";
+                this.style.backgroundColor = "#f8d7da";
+            }
+
+            if(this.value === "") {
+                this.style.border = "1px solid #ccc";
+                this.style.backgroundColor = "white";
+            }
+        });
+    }
     });
 
     // --- 1. TUR BİLGİSİNİ ÇEK VE OTELLERİ FİLTRELE ---
@@ -487,13 +563,15 @@ async function loadHotels(cityName) {
 
     // --- 5. PAKETİ VE OTELLERİ KAYDET ---
     async function saveEverything() {
+
+        const guideSelect = document.getElementById("guideSelectBox");
         const pkgData = {
             tourId: parseInt(tourId),
             startDate: document.getElementById("startDate").value,
             endDate: document.getElementById("endDate").value,
             basePrice: document.getElementById("basePrice").value,
             availableSeats: document.getElementById("capacity").value,
-            guideId: parseInt(selectedGuideId)
+            guideId: parseInt(document.getElementById("guideSelectBox").value)
         };
 
         try {
@@ -558,7 +636,7 @@ async function loadHotels(cityName) {
                 <td>${p.startDate} - ${p.endDate}</td>
                 <td>${p.basePrice} TL</td>
                 <td>${p.availableSeats}</td>
-                <td><button>Düzenle</button></td>
+               
             </tr>`;
         });
     }
@@ -589,10 +667,15 @@ async function loadHotels(cityName) {
     // --- YENİ UÇUŞU VERİTABANINA KAYDET ---
     async function saveNewFlight() {
         const firm = document.getElementById("newFFirm").value;
-        const pnr = document.getElementById("newFPnr").value;
+        let pnr = document.getElementById("newFPnr").value.trim().toUpperCase();
         const dep = document.getElementById("newFDep").value;
         const arr = document.getElementById("newFArr").value;
+        const pnrRegex = /^[A-Z0-9]{6}$/;
 
+        if (!pnrRegex.test(pnr)) {
+        alert("⛔ HATA: PNR kodu tam 6 haneli olmalı ve sadece harf/rakam içermelidir! (Örn: TK1933 değil, 1A2B3C formatında)");
+        return; // İşlemi durdur
+    }
         if(!firm || !pnr || !dep || !arr) {
             alert("Lütfen tüm alanları doldurun!");
             return;

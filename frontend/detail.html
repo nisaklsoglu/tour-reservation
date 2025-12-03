@@ -276,6 +276,26 @@
 
             <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">📅 Müsait Tarihler ve Fiyatlar</h3>
             
+            
+            <div class="filter-bar" style="background: #eef2f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+                <strong style="color:#555;">🔍 Paket Ara:</strong>
+                
+                <div style="flex:1;">
+                    <input type="text" id="searchHotel" placeholder="Otel adı ile ara (Örn: Hilton)" 
+                        onkeyup="filterPackages()" 
+                        style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+
+                <div style="flex:1;">
+                    <input type="text" id="searchFlight" placeholder="Havayolu ile ara (Örn: THY)" 
+                        onkeyup="filterPackages()" 
+                        style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                
+                <button onclick="clearFilters()" style="background: #95a5a6; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">
+                    Temizle
+                </button>
+            </div>
             <div id="package-list-container" class="package-list-area">
                 <p>Paketler yükleniyor...</p>
             </div>

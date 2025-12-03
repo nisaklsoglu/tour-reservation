@@ -257,7 +257,7 @@ async function loadCompanyTours() {
             const name = tour.packageName || tour.tourName || "Tur";
             const type = tour.tourType || "";
             const duration = tour.duration != null ? tour.duration + " gece" : "-";
-            const basePrice = tour.basePrice || tour.price || "-";
+            const basePrice = tour.basePrice ;
 
             tr.innerHTML = `
                 <td>${name}</td>
