@@ -19,13 +19,25 @@ if (!IS_LOGGED_IN || !USER_ID) {
 function formatDateTime(value) {
     if (!value) return "-";
     try {
+        // Eğer sadece YYYY-MM-DD geliyorsa (saat yoksa)
+        if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            const [year, month, day] = value.split("-");
+            const d = new Date(Number(year), Number(month) - 1, Number(day));
+            // Sadece tarihi göster
+            return d.toLocaleDateString("tr-TR");
+        }
+
+        // Normal datetime (ör: 2025-12-03T15:30:00) geliyorsa
         const d = new Date(value);
         if (isNaN(d.getTime())) return value;
+
+        // Hem tarih hem saat istersen:
         return d.toLocaleString("tr-TR");
     } catch {
         return value;
     }
 }
+
 
 /**
  * Her rezervasyon kartını HTML string'e çevirir.
@@ -306,16 +318,37 @@ function setupLogout() {
     if (!logoutBtn) return;
 
     logoutBtn.addEventListener("click", () => {
-        if (confirm("Oturumu kapatmak istiyor musunuz?")) {
-            localStorage.removeItem("userId");
-            localStorage.removeItem("userEmail");
-            localStorage.removeItem("isLoggedIn");
-            localStorage.removeItem("companyId");
-            localStorage.removeItem("isCompany");
-            window.location.href = "login.html";
+        const sure = confirm("Çıkış yapmak istediğinize emin misiniz?");
+        if (!sure) return;
+
+        // Oturumu temizle
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("isCompany");
+        localStorage.removeItem("companyId");
+
+        alert("Başarıyla çıkış yapıldı!");
+        window.location.href = "login.html";
+    });
+}
+
+
+function setupBackButton() {
+    const backBtn = document.getElementById("back-btn");
+    if (!backBtn) return;
+
+    backBtn.addEventListener("click", () => {
+        // Eğer önceki sayfa yoksa (örn. direkt girilmişse) ana sayfaya yönlendir
+        if (document.referrer === "") {
+            window.location.href = "index.html";
+        } else {
+            history.back();
         }
     });
 }
+
+
 
 // Sayfa yüklendiğinde:
 document.addEventListener("DOMContentLoaded", () => {
@@ -337,12 +370,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 🔴 Profil fotoğrafını sabit default görsel yap
+    // Profil fotoğrafını sabit default görsel yap
     if (avatarEl) {
-        // Buradaki yolu kendi projenin klasör yapısına göre ayarla
         avatarEl.src = "profile_picture.jpg";
     }
 
+    // 🔹 Geri butonu ve logout olaylarını ayarla
+    setupBackButton();
     setupLogout();
 
     // 1) Önce yorumlar -> REVIEWED_TOUR_IDS dolsun
@@ -350,20 +384,5 @@ document.addEventListener("DOMContentLoaded", () => {
     loadUserReviews(() => {
         loadReservations();
     });
-
-
-    // ÇIKIŞ YAP BUTONU 
-    const logoutBtn = document.getElementById("logout-btn");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", () => {
-            localStorage.removeItem("userId");
-            localStorage.removeItem("userEmail");
-            localStorage.removeItem("isLoggedIn");
-            localStorage.removeItem("isCompany");
-            localStorage.removeItem("companyId");
-
-            alert("Başarıyla çıkış yapıldı!");
-            window.location.href = "register.html";
-        });
-    }
+    
 });
