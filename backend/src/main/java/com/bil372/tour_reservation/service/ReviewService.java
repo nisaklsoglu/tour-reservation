@@ -84,4 +84,13 @@ public class ReviewService {
     public List<Review> getReviewsByUser(Integer userId) {
         return reviewRepository.findByUser_Id(userId);
     }
+
+    // belli bir tura ait yorumlar
+    @Transactional(readOnly = true)
+    public List<Review> getReviewsByTour(Integer tourId) {
+        return reviewRepository.findByTour_TourId(tourId);
+    }
+
+
+    
 }

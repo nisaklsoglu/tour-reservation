@@ -47,7 +47,7 @@ public class DatabaseInit {
         // INSERT (Yorum Eklendiğinde)
         jdbcTemplate.execute("""
             CREATE TRIGGER trg_tour_stats_insert
-            AFTER INSERT ON Review
+            AFTER INSERT ON review
             FOR EACH ROW
             BEGIN
                 UPDATE Tour t
@@ -61,7 +61,7 @@ public class DatabaseInit {
         // UPDATE (Puan Değiştiğinde)
         jdbcTemplate.execute("""
             CREATE TRIGGER trg_tour_stats_update
-            AFTER UPDATE ON Review
+            AFTER UPDATE ON review
             FOR EACH ROW
             BEGIN
                 UPDATE Tour t
@@ -75,7 +75,7 @@ public class DatabaseInit {
         // DELETE (Yorum Silindiğinde)
         jdbcTemplate.execute("""
             CREATE TRIGGER trg_tour_stats_delete
-            AFTER DELETE ON Review
+            AFTER DELETE ON review
             FOR EACH ROW
             BEGIN
                 UPDATE Tour t

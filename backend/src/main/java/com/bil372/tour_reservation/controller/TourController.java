@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import java.util.List;
 
 @RestController
@@ -68,5 +67,15 @@ public class TourController {
     @GetMapping
     public List<Tour> getAllTours() {
         return tourService.getAllTours();
+    }
+
+    @GetMapping("/by-company/{companyId}")
+    public List<Tour> getToursByCompany(@PathVariable("companyId") Integer companyId) {
+        return tourService.getToursByCompany(companyId);
+    }
+
+    @GetMapping("/top-rated")
+    public List<Tour> getTopRatedTours() {
+        return tourService.getTopRatedTours();
     }
 }
