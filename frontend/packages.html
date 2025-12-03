@@ -270,6 +270,7 @@
     }
     });
 
+    let currentTourCapacity = 0;
     // --- 1. TUR BİLGİSİNİ ÇEK VE OTELLERİ FİLTRELE ---
     async function loadTourInfo() {
         try {
@@ -279,8 +280,15 @@
             
             document.getElementById("tourTitle").innerText = "Tur: " + data.packageName;
             document.getElementById("tourDesc").innerText = data.description;
+            if(data.capaticy){
+                currentTourCapacity = data.capaticy;
+                const capInput=data.capaticy
+                if(capInput){
+                    capInput.value=data.capaticy
+                }
+            }
 
-             const cityNames = data.destinations.map(d => d.destinationCity);
+             
                 
                 console.log("Aranacak Şehirler:", cityNames); 
             // --- ÇOKLU ŞEHİR MANTIĞI BURADA ---
@@ -570,7 +578,8 @@ async function loadHotels(cityName) {
             startDate: document.getElementById("startDate").value,
             endDate: document.getElementById("endDate").value,
             basePrice: document.getElementById("basePrice").value,
-            availableSeats: document.getElementById("capacity").value,
+            availableSeats:currentTourCapacity, // Sabit stok
+
             guideId: parseInt(document.getElementById("guideSelectBox").value)
         };
 
