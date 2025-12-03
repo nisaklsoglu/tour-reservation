@@ -39,7 +39,10 @@ public class TourController {
     ) {
         return tourService.searchTours(city, country, minPrice, maxPrice, guests, minDuration, maxDuration, sortBy);
     }
-
+     @GetMapping("/top-rated")
+    public List<Tour> getTopRatedTours() {
+        return tourService.getTopRatedTours();
+    }
     // --- TEKİL İŞLEMLER ---
     
     // Tek Bir Turu Getir (ID ile)

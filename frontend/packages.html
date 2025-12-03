@@ -2,376 +2,706 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Tur Paketleri Yönetimi</title>
+    <title>Gelişmiş Paket ve Otel Yönetimi</title>
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f4f7f6;
-            margin: 0;
-            padding: 20px;
-        }
-        .top-bar {
-            max-width: 1100px;
-            margin: 0 auto 10px auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .btn-back {
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            background: #6b7280;
-            color: #fff;
-            font-size: 13px;
-        }
-        .btn-back:hover { background: #4b5563; }
+        /* Stil Dosyaları (Öncekilerle Aynı + Yeni Eklemeler) */
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
+        .panel { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h2 { margin-top: 0; color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        label { display: block; margin-top: 10px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-top: 5px; }
+        
+        .btn { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; }
+        .btn-primary { background: #007bff; }
+        .btn-success { background: #28a745; }
+        .btn-secondary { background: #6c757d; }
 
-        .top-title {
-            font-weight: 600;
-            font-size: 15px;
-            color: #374151;
-        }
-        .panel-wrapper {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 20px;
-        }
-        .card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 18px 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-        }
-        .card h2 {
-            margin-top: 0;
-            font-size: 1.15rem;
-            margin-bottom: 8px;
-        }
-        .muted {
-            color: #6b7280;
-            font-size: 0.85rem;
-        }
-        .field-row {
-            margin: 4px 0;
-            font-size: 0.9rem;
-        }
-        .field-label {
-            font-weight: 600;
-            color: #4b5563;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-        th, td {
-            padding: 8px 6px;
-            border-bottom: 1px solid #e5e7eb;
-            text-align: left;
-        }
-        th {
-            background: #f3f4f6;
-            font-weight: 600;
-        }
-        tr:hover td {
-            background: #f9fafb;
-        }
-        .text-right { text-align: right; }
+        /* Otel Bölümü */
+        .hotel-section { background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #90caf9; }
+        .hotel-list-item { background: white; padding: 8px; margin-top: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Yeni Otel Modal */
+        #newHotelModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 400px; }
 
-        label {
-            display: block;
-            font-weight: 600;
-            margin-top: 8px;
-            font-size: 0.9rem;
+        .modal { 
+            display: none; /* Başlangıçta gizli */
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.5); /* Arka planı karart */
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000;
         }
-        input, textarea {
-            width: 100%;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #d1d5db;
-            box-sizing: border-box;
-            font-size: 0.9rem;
+        .modal-content { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            width: 400px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
-        .inline {
-            display: flex;
-            gap: 10px;
-        }
-        .inline > div { flex: 1; }
-        .btn-primary {
-            padding: 9px 14px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            background: #2563eb;
-            color: #fff;
-            font-size: 0.9rem;
-            margin-top: 10px;
-        }
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            background: #e5f2ff;
-            color: #1d4ed8;
-        }
-        .message {
-            margin-top: 8px;
-            font-size: 0.85rem;
-        }
-        .message.error { color: #e11d48; }
-        .message.success { color: #16a34a; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .close-btn { cursor: pointer; font-size: 20px; font-weight: bold; color: #aaa; }
+        .close-btn:hover { color: #000; }
     </style>
 </head>
 <body>
 
-<div class="top-bar">
-    <button class="btn-back" onclick="goBack()">⬅ Şirket Paneline Dön</button>
-    <div class="top-title" id="tour-header">Tur Paketleri</div>
+<button class="btn btn-secondary" onclick="location.href='company.html'">⬅ Geri Dön</button>
+
+<div class="panel">
+    <h2 id="tourTitle">Tur Bilgisi Yükleniyor...</h2>
+    <p id="tourDesc">...</p>
 </div>
 
-<div class="panel-wrapper">
-    <!-- Sol: Tur bilgisi + paket listesi -->
-    <div class="card">
-        <h2>Tur ve Paketler</h2>
-        <div class="muted" id="tour-subtitle">Tur bilgileri yükleniyor...</div>
+<div class="panel">
+    <h2>📋 Mevcut Paketler</h2>
+    <table style="width:100%; text-align:left; border-collapse:collapse;">
+        <thead>
+            <tr style="background:#eee;"><th>Tarih</th><th>Fiyat</th><th>Stok</th><th>İşlem</th></tr>
+        </thead>
+        <tbody id="packagesTable">
+            <tr><td colspan="4">Yükleniyor...</td></tr>
+        </tbody>
+    </table>
+</div>
 
-        <div id="tour-info" style="margin-top:8px; margin-bottom:10px;">
-            <!-- Tur bilgilerini buraya yazacağız -->
+<div class="panel">
+    <h2>➕ Yeni Paket Oluştur</h2>
+    <div style="display:flex; gap:10px;">
+        <div style="flex:1"><label>Başlangıç:</label><input type="date" id="startDate"></div>
+        <div style="flex:1"><label>Bitiş:</label><input type="date" id="endDate"></div>
+    </div>
+    <div style="display:flex; gap:10px;">
+        <div style="flex:1"><label>Fiyat (TL):</label><input type="number" id="basePrice"></div>
+        <div style="flex:1"><label>Kontenjan:</label><input type="number" id="capacity" value="40"></div>
+    </div>
+    
+
+    <div class="section-box" style="background:#e3f2fd;">
+        <h3>🏨 Konaklama Ekle</h3>
+        <div style="display:flex; gap:5px; align-items:end;">
+            <div style="flex:3;">
+                <label>Mevcut Oteller:</label>
+                <select id="hotelSelect"><option>Yükleniyor...</option></select>
+            </div>
+            <button class="btn btn-secondary" onclick="openModal('hotelModal')">➕ Yeni Ekle</button>
         </div>
-
-        <table>
-            <thead>
-            <tr>
-                <th>Başlangıç</th>
-                <th>Bitiş</th>
-                <th>Fiyat</th>
-                <th>Rezerve</th>
-                <th>Kalan Koltuk</th>
-            </tr>
-            </thead>
-            <tbody id="packages-body">
-                <tr><td colspan="5">Paketler yükleniyor...</td></tr>
-            </tbody>
-        </table>
-        <div class="message" id="packages-msg"></div>
+        <div style="display:flex; gap:5px;">
+            <div style="flex:1"><label>Giriş:</label><input type="date" id="hotelIn"></div>
+            <div style="flex:1"><label>Çıkış:</label><input type="date" id="hotelOut"></div>
+            <button class="btn btn-primary" style="margin-top:28px;" onclick="addHotelToList()">Listeye Ekle</button>
+        </div>
+        <div id="selectedHotelsList"></div>
     </div>
 
-    <!-- Sağ: Paket ekleme / düzenleme formu -->
-    <div class="card">
-        <h2>Yeni Paket Ekle <span class="badge">Sezon / Tarih</span></h2>
-        <div class="muted">Bu form ile seçili tur için yeni bir tarih aralığı ve fiyat tanımlayabilirsiniz.</div>
-
-        <label for="startDate">Başlangıç Tarihi</label>
-        <input type="date" id="startDate">
-
-        <label for="endDate">Bitiş Tarihi</label>
-        <input type="date" id="endDate">
-
-        <div class="inline">
-            <div>
-                <label for="basePrice">Fiyat (TL)</label>
-                <input type="number" id="basePrice" placeholder="Örn: 20000" min="0">
+    <div class="section-box" style="background:#fff3cd;">
+        <h3>✈️ Uçuş Ekle</h3>
+        <div style="display:flex; gap:5px; align-items:end;">
+            <div style="flex:3;">
+                <label>Mevcut Uçuşlar:</label>
+                <select id="flightSelect"><option>Yükleniyor...</option></select>
             </div>
-            <div>
-                <label for="availableSeats">Kapasite</label>
-                <input type="number" id="availableSeats" placeholder="Örn: 20" min="0">
-            </div>
+            <button class="btn btn-secondary" onclick="openModal('flightModal')">➕ Yeni Ekle</button>
         </div>
+        <div style="display:flex; gap:5px;">
+            <div style="flex:1"><label>Tip:</label><select id="flightType"><option>Gidiş</option><option>Dönüş</option><option>Ara Uçuş</option></select></div>
+            <div style="flex:1"><label>Tarih:</label><input type="date" id="flightDate"></div>
+        </div>
+        <div style="display:flex; gap:5px;">
+            <div style="flex:1"><label>Kalkış:</label><input type="time" id="depTime"></div>
+            <div style="flex:1"><label>Varış:</label><input type="time" id="arrTime"></div>
+            <div style="flex:1"><label>Süre (Dk):</label><input type="number" id="flightDur" placeholder="120"></div>
+            <button class="btn btn-primary" style="margin-top:28px;" onclick="addFlightToList()">Listeye Ekle</button>
+        </div>
+        <div id="selectedFlightsList"></div>
+    </div>
 
-        <label for="guideId">Rehber ID (opsiyonel)</label>
-        <input type="number" id="guideId" placeholder="Örn: 1">
+    <div class="section-box" style="background:#d4edda; border-color:#c3e6cb; margin-top:15px;">
+        <h3>🧢 Tur Rehberi Seç</h3>
+        <div style="display:flex; gap:5px; align-items:end;">
+            <div style="flex:3;">
+                <label>Mevcut Rehberler:</label>
+                <select id="guideSelectBox"><option>Yükleniyor...</option></select>
+            </div>
+            <button class="btn btn-secondary" onclick="openModal('guideModal')">➕ Yeni Rehber</button>
+        </div>
+        <div style="margin-top:10px; color:#155724; font-size:14px;">
+            * Bu paket için seçilen rehber: <strong id="selectedGuideName">Henüz Seçilmedi</strong>
+        </div>
+    </div>
 
-        <button class="btn-primary" onclick="savePackage()">Paket Oluştur</button>
+    <button class="btn btn-success" style="width:100%; margin-top:20px; padding:15px;" onclick="saveEverything()">✅ HEPSİNİ KAYDET</button>
+</div>
 
-        <div class="message" id="form-msg"></div>
+<div id="hotelModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🏨 Yeni Otel Tanımla</h3>
+            <span class="close-btn" onclick="closeModal('hotelModal')">×</span>
+        </div>
+        <label>Otel Adı:</label><input type="text" id="newHName">
+        <label>Yıldız (1-5):</label><input type="number" id="newHRate" min="1" max="5">
+        <label>Adres/Şehir:</label><input type="text" id="newHAddr">
+        <button class="btn btn-success" onclick="saveNewHotel()" style="margin-top:15px; width:100%;">Kaydet</button>
     </div>
 </div>
+
+<div id="flightModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>✈️ Yeni Uçuş Tanımla</h3>
+            <span class="close-btn" onclick="closeModal('flightModal')">×</span>
+        </div>
+        <label>Firma:</label><input type="text" id="newFFirm" placeholder="Örn: THY">
+        <label>PNR:</label><input type="text" id="newFPnr" placeholder="Örn: TK1933">
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1"><label>Kalkış:</label><input type="text" id="newFDep" placeholder="IST"></div>
+            <div style="flex:1"><label>Varış:</label><input type="text" id="newFArr" placeholder="CDG"></div>
+        </div>
+        <button class="btn btn-success" onclick="saveNewFlight()" style="margin-top:15px; width:100%;">Kaydet</button>
+    </div>
+</div>
+<div id="guideModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🧢 Yeni Rehber Tanımla</h3>
+            <span class="close-btn" onclick="closeModal('guideModal')">×</span>
+        </div>
+        <label>Ad Soyad:</label><input type="text" id="newGName">
+        <label>Telefon:</label><input type="text" id="newGPhone">
+        <label>E-posta:</label><input type="email" id="newGEmail">
+        <button class="btn btn-success" onclick="saveNewGuide()" style="margin-top:15px; width:100%;">Kaydet</button>
+    </div>
+</div>
+
+
 
 <script>
-const API_BASE = "http://localhost:8080/api";
+    const API_BASE = "http://localhost:8080/api";
+    const urlParams = new URLSearchParams(window.location.search);
+    const tourId = urlParams.get("tourId");
+    let selectedHotels = []; 
 
-// URL'den tourId al
-const params = new URLSearchParams(window.location.search);
-const tourId = params.get("tourId");
-
-if (!tourId) {
-    alert("Tur bilgisi bulunamadı.");
-    window.location.href = "company.html";
-}
-
-// Şirket login guard
-const isCompany = localStorage.getItem("isCompany") === "true";
-if (!isCompany) {
-    alert("Bu sayfaya sadece şirket hesapları erişebilir.");
-    window.location.href = "index.html";
-}
-
-function goBack() {
-    window.location.href = "company.html";
-}
-
-// Tur bilgilerini çek
-async function loadTourInfo() {
-    const subtitle = document.getElementById("tour-subtitle");
-    const infoDiv = document.getElementById("tour-info");
-
-    try {
-        const res = await fetch(`${API_BASE}/tours/${tourId}`);
-        if (!res.ok) {
-            subtitle.textContent = "Tur bilgileri alınamadı.";
-            return;
-        }
-        const t = await res.json();
-
-        document.getElementById("tour-header").textContent = `Tur Paketleri – ${t.packageName || t.tourName || "Tur"}`;
-
-        subtitle.textContent = "Tur bilgileri";
-        infoDiv.innerHTML = `
-            <div class="field-row"><span class="field-label">Adı:</span> ${t.packageName || t.tourName || "-"}</div>
-            <div class="field-row"><span class="field-label">Tip:</span> ${t.tourType || "-"}</div>
-            <div class="field-row"><span class="field-label">Genel Açıklama:</span> ${(t.description || "-")}</div>
-        `;
-    } catch (err) {
-        console.error("Tour info error:", err);
-        subtitle.textContent = "Sunucu hatası.";
-    }
-}
-
-// Paket listesini çek
-async function loadPackages() {
-    const tbody = document.getElementById("packages-body");
-    const msg = document.getElementById("packages-msg");
-    msg.textContent = "";
-    tbody.innerHTML = "<tr><td colspan='5'>Paketler yükleniyor...</td></tr>";
-
-    try {
-        // ❗ BURADAKİ ENDPOINT'İ KENDİ BACKEND'İNE GÖRE AYARLA
-        // Örneğin TourPackageController'da:
-        // @GetMapping("/api/tour-packages/by-tour/{tourId}")
-        const res = await fetch(`${API_BASE}/tour-packages/by-tour/${tourId}`);
-
-        if (!res.ok) {
-            tbody.innerHTML = "<tr><td colspan='5'>Paketler yüklenemedi.</td></tr>";
-            msg.textContent = "Paketler alınırken hata oluştu.";
-            msg.classList.add("error");
-            return;
-        }
-
-        const packages = await res.json();
-        if (!packages || packages.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='5'>Bu tur için henüz paket tanımlanmamış.</td></tr>";
-            return;
-        }
-
-        tbody.innerHTML = "";
-        packages.forEach(p => {
-            const tr = document.createElement("tr");
-            const start = p.startDate || "-";
-            const end = p.endDate || "-";
-            const price = p.basePrice != null ? p.basePrice + " TL" : "-";
-            const booked = p.bookedCount != null ? p.bookedCount : 0;
-            const seats = p.availableSeats != null ? p.availableSeats : "-";
-
-            tr.innerHTML = `
-                <td>${start}</td>
-                <td>${end}</td>
-                <td>${price}</td>
-                <td>${booked}</td>
-                <td>${seats}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-    } catch (err) {
-        console.error("Packages load error:", err);
-        tbody.innerHTML = "<tr><td colspan='5'>Sunucu hatası.</td></tr>";
-        msg.textContent = "Sunucu hatası (paketler).";
-        msg.classList.add("error");
-    }
-}
-
-// Yeni paket kaydet
-async function savePackage() {
-    const formMsg = document.getElementById("form-msg");
-    formMsg.textContent = "";
-    formMsg.className = "message";
-
-    const startDate = document.getElementById("startDate").value;
-    const endDate = document.getElementById("endDate").value;
-    const basePrice = document.getElementById("basePrice").value;
-    const availableSeats = document.getElementById("availableSeats").value;
-    const guideId = document.getElementById("guideId").value;
-
-    if (!startDate || !endDate) {
-        formMsg.textContent = "Başlangıç ve bitiş tarihi zorunludur.";
-        formMsg.classList.add("error");
-        return;
-    }
-    if (!basePrice || basePrice <= 0) {
-        formMsg.textContent = "Geçerli bir fiyat giriniz.";
-        formMsg.classList.add("error");
-        return;
-    }
-
-    const body = {
-        tourId: parseInt(tourId, 10),
-        startDate,
-        endDate,
-        basePrice: parseFloat(basePrice),
-        availableSeats: availableSeats ? parseInt(availableSeats, 10) : 0,
-        guideId: guideId ? parseInt(guideId, 10) : null
-    };
-
-    try {
-        // Backend'de zaten var olan endpoint:
-        // @PostMapping("/{tourId}/add-package")
-        // body'de tourId olmasa bile path'ten alınıyor, biz yine de gönderiyoruz
-        const res = await fetch(`${API_BASE}/tours/${tourId}/add-package`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        });
-
-        const text = await res.text();
-
-        if (!res.ok) {
-            formMsg.textContent = text || "Paket eklenirken hata oluştu.";
-            formMsg.classList.add("error");
-            return;
-        }
-
-        formMsg.textContent = "Paket başarıyla oluşturuldu.";
-        formMsg.classList.add("success");
-
-        // Formu temizle
-        document.getElementById("startDate").value = "";
-        document.getElementById("endDate").value = "";
-        document.getElementById("basePrice").value = "";
-        document.getElementById("availableSeats").value = "";
-        document.getElementById("guideId").value = "";
-
-        // Listeyi tazele
+    document.addEventListener("DOMContentLoaded", () => {
+        if(!tourId) { alert("Tur ID yok!"); return; }
+        
+        loadTourInfo(); // Bu fonksiyon artık otelleri de tetikleyecek
         loadPackages();
+        loadFlights();
+        loadGuides();
+    });
+
+    // --- 1. TUR BİLGİSİNİ ÇEK VE OTELLERİ FİLTRELE ---
+    async function loadTourInfo() {
+        try {
+            const res = await fetch(`${API_BASE}/tours/${tourId}`);
+            if (!res.ok) throw new Error("Tur bulunamadı");
+            const data = await res.json();
+            
+            document.getElementById("tourTitle").innerText = "Tur: " + data.packageName;
+            document.getElementById("tourDesc").innerText = data.description;
+
+             const cityNames = data.destinations.map(d => d.destinationCity);
+                
+                console.log("Aranacak Şehirler:", cityNames); 
+            // --- ÇOKLU ŞEHİR MANTIĞI BURADA ---
+            if (cityNames.length > 1) {
+            // BİRDEN FAZLA ŞEHİR VARSA -> Multi Fonksiyonu
+            loadHotelsMulti(cityNames);
+        } else if (cityNames.length === 1) {
+            // TEK ŞEHİR VARSA -> Tekil Fonksiyon (Şehir ismini gönderiyoruz)
+            loadHotels(cityNames[0]);
+        } else {
+            // HİÇ ŞEHİR YOKSA -> Tüm otelleri getir (Null gönderiyoruz)
+            loadHotels(null);
+        }
+            
+        } catch (err) {
+            console.error(err);
+            alert("Tur bilgisi çekilemedi.");
+        }
+    }
+
+    // --- REHBER İŞLEMLERİ ---
+    
+    // 1. Rehberleri Getir
+    async function loadGuides() {
+        const res = await fetch(`${API_BASE}/guides/all`);
+        const guides = await res.json();
+        
+        const select = document.getElementById("guideSelectBox");
+        select.innerHTML = '<option value="">Rehber Seçiniz...</option>';
+        
+        guides.forEach(g => {
+            const opt = document.createElement("option");
+            opt.value = g.guideId;
+            opt.text = `${g.guideName} (${g.guidePhone})`;
+            select.appendChild(opt);
+        });
+
+        // Seçim değişince yazıyı güncelle
+        select.onchange = function() {
+            const name = this.options[this.selectedIndex].text;
+            document.getElementById("selectedGuideName").innerText = name !== "Rehber Seçiniz..." ? name : "Henüz Seçilmedi";
+        };
+    }
+
+    // 2. Yeni Rehber Kaydet
+    async function saveNewGuide() {
+        const name = document.getElementById("newGName").value;
+        const phone = document.getElementById("newGPhone").value;
+        const email = document.getElementById("newGEmail").value;
+
+        if(!name || !email) { alert("Ad ve E-posta zorunlu!"); return; }
+
+        const data = {
+            guideName: name,
+            guidePhone: phone,
+            guideEmail: email
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/guides/create`, {
+                method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(data)
+            });
+
+            if(res.ok) {
+                alert("✅ Rehber Eklendi!");
+                closeModal('guideModal');
+                loadGuides(); // Listeyi yenile
+                
+                // Formu temizle
+                document.getElementById("newGName").value = "";
+                document.getElementById("newGPhone").value = "";
+                document.getElementById("newGEmail").value = "";
+            } else {
+                alert("Hata oluştu!");
+            }
+        } catch(e) { console.error(e); }
+    }
+    // --- YENİ: TEK ŞEHİR İÇİN OTEL GETİRME ---
+async function loadHotels(cityName) {
+    const select = document.getElementById("hotelSelect");
+    select.innerHTML = '<option value="">Yükleniyor...</option>';
+
+    // Bu özelliği, yeni otel eklerken hangi şehri yenileyeceğimizi bilmek için ekliyoruz
+    select.setAttribute("data-current-city", cityName || "");
+
+    let url;
+    if (cityName) {
+        // Şehir belli ise o şehirdeki otelleri ara
+        url = `${API_BASE}/hotels/search/${cityName}`;
+    } else {
+        // Şehir yoksa (null) tüm otelleri getir
+        url = `${API_BASE}/hotels/all`;
+    }
+
+    try {
+        const res = await fetch(url);
+        
+        // Eğer 404 vs gelirse boş dizi kabul et
+        if(!res.ok) throw new Error("Otel listesi alınamadı");
+        
+        const hotels = await res.json();
+
+        select.innerHTML = '<option value="">Seçiniz...</option>';
+
+        if (hotels.length === 0) {
+            const msg = cityName ? `"${cityName}" konumunda` : "Sistemde";
+            const opt = document.createElement("option");
+            opt.text = `⚠️ ${msg} kayıtlı otel yok.`;
+            select.appendChild(opt);
+        } else {
+            hotels.forEach(h => {
+                const opt = document.createElement("option");
+                opt.value = h.hotelId;
+                // Şehir filtreli olduğu için parantez içinde sadece yıldız yazabiliriz
+                opt.text = `${h.hotelName} (${h.hotelRate}★) - ${h.hotelAddress}`;
+                select.appendChild(opt);
+            });
+        }
 
     } catch (err) {
-        console.error("Save package error:", err);
-        formMsg.textContent = "Sunucu hatası.";
-        formMsg.classList.add("error");
+        console.error("Tekil otel yükleme hatası:", err);
+        select.innerHTML = '<option value="">Listeleme hatası</option>';
     }
 }
 
-// Sayfa açılışında verileri yükle
-loadTourInfo();
-loadPackages();
+    // --- 2. ÇOKLU ŞEHİR İÇİN OTEL GETİRME ---
+    async function loadHotelsMulti(cities) {
+        const select = document.getElementById("hotelSelect");
+        select.innerHTML = '<option value="">Yükleniyor...</option>';
+        
+        let allHotels = [];
+
+        try {
+            if (!cities || cities.length === 0) {
+                // Şehir yoksa tüm otelleri getir (Varsayılan)
+                const res = await fetch(`${API_BASE}/hotels/all`);
+                allHotels = await res.json();
+            } else {
+                // Her şehir için ayrı istek atıp sonuçları topluyoruz (Parallel Fetch)
+                const promises = cities.map(city => 
+                    fetch(`${API_BASE}/hotels/search/${city}`).then(res => res.json())
+                );
+
+                // Tüm isteklerin bitmesini bekle
+                const results = await Promise.all(promises);
+
+                // Gelen listeleri tek bir havuzda birleştir
+                results.forEach(list => allHotels.push(...list));
+            }
+
+            // --- AYNI OTELİ İKİ KERE EKLEMEYİ ÖNLE (Tekilleştirme) ---
+            // (Belki bir otelin adresinde hem Paris hem Fransa geçiyordur, çift gelmesin)
+            const uniqueHotels = [];
+            const map = new Map();
+            for (const item of allHotels) {
+                if(!map.has(item.hotelId)){
+                    map.set(item.hotelId, true);    // ID'yi kaydet
+                    uniqueHotels.push(item);
+                }
+            }
+
+            // --- KUTUYU DOLDUR ---
+            select.innerHTML = '<option value="">Seçiniz...</option>';
+            
+            if (uniqueHotels.length === 0) {
+                const opt = document.createElement("option");
+                const locMsg = cities ? cities.join(", ") : "Kayıtlı";
+                opt.text = `⚠️ "${locMsg}" konumlarında otel bulunamadı. Yeni ekleyin ->`;
+                select.appendChild(opt);
+            } else {
+                uniqueHotels.forEach(h => {
+                    const opt = document.createElement("option");
+                    opt.value = h.hotelId;
+                    opt.text = `${h.hotelName} (${h.hotelRate}★) - ${h.hotelAddress}`;
+                    select.appendChild(opt);
+                });
+            }
+
+        } catch (err) {
+            console.error("Otel yükleme hatası:", err);
+            select.innerHTML = '<option value="">Hata oluştu</option>';
+        }
+    }
+
+    // --- 3. YENİ OTEL KAYDET ---
+    function openNewHotelModal() {
+        document.getElementById("newHotelModal").style.display = "flex";
+    }
+
+    // --- 2. Yeni Otel Kaydet (DÜZELTİLMİŞ) ---
+    async function saveNewHotel() {
+        // 1. Değerleri Al
+        const hotel_name = document.getElementById("newHName").value; // ID'lere Dikkat!
+        const hotel_rate = document.getElementById("newHRate").value;
+        const hotel_address = document.getElementById("newHAddr").value;
+
+        // 2. Kontrol Et
+        if(!hotel_name || !hotel_rate || !hotel_address) { 
+            alert("Lütfen tüm alanları doldurunuz!"); 
+            return; 
+        }
+
+        // 3. Veriyi Hazırla (Backend DTO ile uyumlu olmalı)
+        // HotelRequest.java: hotelName, hotelRate, hotelAddress
+        const data = {
+            hotelName: hotel_name,
+            hotelRate: parseInt(hotel_rate),
+            hotelAddress: hotel_address
+        };
+        
+        console.log("Gönderilen Otel Verisi:", data); // Konsoldan kontrol et
+
+        try {
+            // 4. İsteği Gönder
+            const res = await fetch(`${API_BASE}/hotels/create`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            // 5. Sonucu İşle
+            if(res.ok) {
+                alert("✅ Otel Başarıyla Eklendi!");
+                closeModal('hotelModal'); // Pencereyi kapat
+                
+                // Formu Temizle
+                document.getElementById("newHName").value = "";
+                document.getElementById("newHRate").value = "";
+                document.getElementById("newHAddr").value = "";
+
+                // Listeyi Yenile (Yeni otel görünsün diye)
+                // Şehre göre filtreleme varsa, mevcut şehri koruyarak yenilememiz lazım.
+                // Şimdilik basitçe loadHotels() diyoruz, eğer hata verirse loadHotels(null) dene.
+                
+                // Mevcut Turun Şehrini Bulup Yenileyelim (Daha Akıllıca)
+                const currentCity = document.getElementById("hotelSelect").getAttribute("data-current-city");
+                loadHotels(currentCity || null); 
+
+            } else {
+                const errorText = await res.text();
+                alert("Hata: " + errorText);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Sunucuya bağlanılamadı!");
+        }
+    }
+
+    // --- 4. LİSTEYE OTEL EKLE (GEÇİCİ) ---
+    function addHotelToList() {
+        const select = document.getElementById("hotelSelect");
+        const hotelId = select.value;
+        
+        if(!hotelId || hotelId === "") { 
+            alert("Lütfen otel seçin!"); 
+            return; 
+        }
+
+        const hotelName = select.options[select.selectedIndex].text;
+        const entry = document.getElementById("hotelIn").value;
+        const exit = document.getElementById("hotelOut").value;
+
+        if(!entry || !exit) { alert("Giriş-Çıkış tarihlerini seçin!"); return; }
+
+        selectedHotels.push({ hotelId, entryDate: entry, exitDate: exit, name: hotelName });
+        renderSelectedHotels();
+    }
+
+    function renderSelectedHotels() {
+        const div = document.getElementById("selectedHotelsList");
+        div.innerHTML = "";
+        selectedHotels.forEach((item, index) => {
+            div.innerHTML += `
+                <div class="hotel-list-item">
+                    <span>🏨 ${item.name} (${item.entryDate} - ${item.exitDate})</span>
+                    <button onclick="selectedHotels.splice(${index},1); renderSelectedHotels();" style="color:red; border:none; background:none; cursor:pointer;">Sil ✕</button>
+                </div>`;
+        });
+    }
+
+    // --- 5. PAKETİ VE OTELLERİ KAYDET ---
+    async function saveEverything() {
+        const pkgData = {
+            tourId: parseInt(tourId),
+            startDate: document.getElementById("startDate").value,
+            endDate: document.getElementById("endDate").value,
+            basePrice: document.getElementById("basePrice").value,
+            availableSeats: document.getElementById("capacity").value,
+            guideId: parseInt(selectedGuideId)
+        };
+
+        try {
+            // A. Paketi Kaydet
+            const pkgRes = await fetch(`${API_BASE}/tours/${tourId}/add-package`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(pkgData)
+            });
+
+            if(!pkgRes.ok) throw new Error("Paket kaydedilemedi!");
+            const savedPackage = await pkgRes.json();
+            const newPackageId = savedPackage.packageId;
+
+            // B. Otelleri Bağla
+            for (const hotelItem of selectedHotels) {
+                const hotelData = {
+                    packageId: newPackageId,
+                    hotelId: parseInt(hotelItem.hotelId),
+                    entryDate: hotelItem.entryDate,
+                    exitDate: hotelItem.exitDate
+                };
+
+                await fetch(`${API_BASE}/tour-packages/add-hotel`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(hotelData)
+                });
+            }
+            for (const f of selectedFlights) {
+                const flightData = {
+                    packageId: newPackageId,
+                    flightId: parseInt(f.flightId),
+                    flightType: f.type,
+                    departureDate: f.date,
+                    departureTime: f.depTime + ":00", // Saniye formatı için
+                    arrivalTime: f.arrTime + ":00",
+                    duration: parseInt(f.duration)
+                };
+
+                await fetch(`${API_BASE}/tour-packages/add-flight`, {
+                    method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(flightData)
+                });
+            }
+
+            alert("✅ Paket ve Oteller Başarıyla Kaydedildi!");
+            location.reload();
+
+        } catch (err) {
+            alert("Hata: " + err.message);
+        }
+    }
+    
+    // --- Paketleri Listele ---
+    async function loadPackages() {
+        const res = await fetch(`${API_BASE}/tour-packages/by-tour/${tourId}`);
+        const data = await res.json();
+        const tbody = document.getElementById("packagesTable");
+        tbody.innerHTML = "";
+        data.forEach(p => {
+            tbody.innerHTML += `<tr>
+                <td>${p.startDate} - ${p.endDate}</td>
+                <td>${p.basePrice} TL</td>
+                <td>${p.availableSeats}</td>
+                <td><button>Düzenle</button></td>
+            </tr>`;
+        });
+    }
+
+
+    // --- GLOBAL DEĞİŞKEN ---
+    let selectedFlights = []; 
+
+    // Sayfa açılışında çalışacaklara ekle:
+    // loadFlights(); // (DOMContentLoaded içine ekle)
+
+    // --- 1. Uçuşları Getir ve Doldur ---
+    async function loadFlights() {
+        const res = await fetch(`${API_BASE}/flights/all`);
+        const flights = await res.json();
+        
+        const select = document.getElementById("flightSelect");
+        select.innerHTML = '<option value="">Seçiniz...</option>';
+        flights.forEach(f => {
+            const opt = document.createElement("option");
+            opt.value = f.flightId;
+            opt.text = `${f.firma} (${f.pnrNo}) | ${f.kalkisKonumu} ➝ ${f.varisKonumu}`;
+            select.appendChild(opt);
+        });
+    }
+
+    // --- 2. Yeni Uçuş Kaydet (Modal) ---
+    // --- YENİ UÇUŞU VERİTABANINA KAYDET ---
+    async function saveNewFlight() {
+        const firm = document.getElementById("newFFirm").value;
+        const pnr = document.getElementById("newFPnr").value;
+        const dep = document.getElementById("newFDep").value;
+        const arr = document.getElementById("newFArr").value;
+
+        if(!firm || !pnr || !dep || !arr) {
+            alert("Lütfen tüm alanları doldurun!");
+            return;
+        }
+
+        // Backend'deki Flight nesnesine uygun JSON
+        const data = {
+            firma: firm,
+            pnrNo: pnr,
+            kalkisKonumu: dep,
+            varisKonumu: arr
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/flights/create`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            if(res.ok) {
+                alert("✅ Uçuş başarıyla tanımlandı!");
+                closeModal('flightModal'); // Modalı kapat
+                
+                // Formu temizle
+                document.getElementById("newFFirm").value = "";
+                document.getElementById("newFPnr").value = "";
+                document.getElementById("newFDep").value = "";
+                document.getElementById("newFArr").value = "";
+
+                loadFlights(); // LİSTEYİ YENİLE (En önemli kısım)
+            } else {
+                alert("Hata: Uçuş kaydedilemedi.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Sunucu hatası!");
+        }
+    }
+
+    // --- 3. Listeye Uçuş Ekle (Geçici Hafıza) ---
+    function addFlightToList() {
+        const select = document.getElementById("flightSelect");
+        const flightId = select.value;
+        if(!flightId) return alert("Uçuş seçin!");
+
+        const flightName = select.options[select.selectedIndex].text;
+        
+        const item = {
+            flightId: flightId,
+            name: flightName,
+            type: document.getElementById("flightType").value,
+            date: document.getElementById("flightDate").value,
+            depTime: document.getElementById("depTime").value,
+            arrTime: document.getElementById("arrTime").value,
+            duration: document.getElementById("flightDur").value
+        };
+
+        if(!item.date || !item.depTime) return alert("Tarih ve Saat zorunlu!");
+
+        selectedFlights.push(item);
+        renderSelectedFlights();
+    }
+
+    function renderSelectedFlights() {
+        const div = document.getElementById("selectedFlightsList");
+        div.innerHTML = "";
+        selectedFlights.forEach((item, index) => {
+            div.innerHTML += `
+                <div class="hotel-list-item">
+                    <span>✈️ ${item.type}: ${item.name} <br> <small>${item.date} | ${item.depTime} - ${item.arrTime}</small></span>
+                    <button onclick="selectedFlights.splice(${index},1); renderSelectedFlights();" style="color:red; border:none; cursor:pointer;">Sil</button>
+                </div>`;
+        });
+    }
+
+    // --- 4. KAYIT FONKSİYONUNU GÜNCELLE ---
+    // savePackageWithHotels fonksiyonunun adını 'saveEverything' yapabilirsin
+    // İçine şu döngüyü ekle:
+
+    /*
+            // C. Uçuşları Bağla
+            for (const f of selectedFlights) {
+                const flightData = {
+                    packageId: newPackageId,
+                    flightId: parseInt(f.flightId),
+                    flightType: f.type,
+                    departureDate: f.date,
+                    departureTime: f.depTime + ":00", // Saniye formatı için
+                    arrivalTime: f.arrTime + ":00",
+                    duration: parseInt(f.duration)
+                };
+
+                await fetch(`${API_BASE}/tour-packages/add-flight`, {
+                    method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(flightData)
+                });
+            }
+    */
+
+   // --- MODAL (PENCERE) AÇMA KAPAMA YARDIMCILARI ---
+    function openModal(id) {
+        document.getElementById(id).style.display = "flex";
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+    }
 </script>
+
 
 </body>
 </html>

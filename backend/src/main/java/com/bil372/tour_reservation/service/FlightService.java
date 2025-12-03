@@ -8,6 +8,9 @@ import com.bil372.tour_reservation.entity.FlightPackage;
 import com.bil372.tour_reservation.repository.FlightPackageRepository;
 import com.bil372.tour_reservation.repository.FlightRepository;
 import com.bil372.tour_reservation.repository.TourPackageRepository;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -54,5 +57,12 @@ public class FlightService {
         fp.setArrivalTime(request.getArrivalTime()); 
         fp.setDuration(request.getDuration());
         flightPackageRepository.save(fp);
+    }
+    public List<Flight> getAllFlights() {
+        return flightRepository.findAll();
+    }
+
+    public Flight save(Flight flight) {
+        return flightRepository.save(flight);
     }
 }
