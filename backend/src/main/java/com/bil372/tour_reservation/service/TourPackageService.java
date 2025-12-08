@@ -22,7 +22,7 @@ public class TourPackageService {
     private final FlightPackageRepository flightPackageRepository;
     private final GuideRepository guideRepository;
 
-    // --- CONSTRUCTOR INJECTION (Hepsini buraya ekledik) ---
+
     public TourPackageService(TourPackageRepository tourPackageRepository,
                               HotelRepository hotelRepository,
                               FlightRepository flightRepository,
@@ -37,9 +37,7 @@ public class TourPackageService {
         this.guideRepository = guideRepository;
     }
 
-    // =========================================================
-    // 1. ESKİ METOTLARIN (Filtreleme & Sıralama)
-    // =========================================================
+  
 
     public List<TourPackage> getPackagesByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
         return tourPackageRepository.findPackagesInPriceRange(minPrice, maxPrice);
@@ -69,9 +67,6 @@ public class TourPackageService {
         return tourPackageRepository.findPackagesByHotelName(hotelName);
     }
 
-    // =========================================================
-    // 2. YENİ METOTLAR (Otel, Uçuş, Rehber Ekleme)
-    // =========================================================
 
     // --- OTELİ PAKETE EKLEME ---
     public void addHotelToPackage(AddHotelRequest request) {

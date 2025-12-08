@@ -28,12 +28,12 @@ public class PaymentService {
         Reservation reservation = reservationRepository.findById(request.getReservationId())
                 .orElseThrow(() -> new RuntimeException("Rezervasyon bulunamadı!"));
 
-        // 2. Ödemeyi "Sanal Olarak" Başarılı Sayalım
+        
         Payment payment = new Payment();
         payment.setReservation(reservation); // İlişkiyi kur
         payment.setAmount(request.getAmount());
         payment.setPaymentMethod("Credit Card");
-        payment.setProvider("System-Simulation"); // Iyzico yerine System
+        payment.setProvider("System-Simulation"); 
         payment.setProviderRefNo(UUID.randomUUID().toString()); // Rastgele bir referans no
         payment.setStatus("Succeeded"); // ENUM değerine dikkat! (Succeeded)
         payment.setPaymentDate(LocalDateTime.now());
@@ -43,7 +43,7 @@ public class PaymentService {
         // 3. Ödemeyi Kaydet
         Payment savedPayment = paymentRepository.save(payment);
 
-        // 4. KRİTİK NOKTA: Rezervasyon Durumunu Güncelle
+        // 4. Rezervasyon Durumunu Güncelle
         reservation.setStatus("Onaylandı");
         reservationRepository.save(reservation);
 

@@ -19,7 +19,6 @@ public class HotelPackage {
     @Column(name = "hotel_id")
     private Integer hotelId;
 
-    // --- EKLENEN İLİŞKİLER (Veriyi çekebilmek için ŞART) ---
     
     @ManyToOne
     @JoinColumn(name = "hotel_id", insertable = false, updatable = false)
@@ -51,7 +50,6 @@ public class HotelPackage {
     public LocalDate getExitDate() { return exitDate; }
     public void setExitDate(LocalDate exitDate) { this.exitDate = exitDate; }
 
-    // Yeni Nesne Getter'ları
     public Hotel getHotel() { return hotel; }
     public void setHotel(Hotel hotel) { this.hotel = hotel; }
 
@@ -70,7 +68,7 @@ class HotelPackageId implements Serializable {
         this.hotelId = hotelId;
     }
 
-    // Bu ikisi Hibernate için zorunludur
+    // Bu ikisi Hibernate için zorunlu
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

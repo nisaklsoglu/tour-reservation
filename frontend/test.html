@@ -141,7 +141,7 @@
     const API_BASE = "http://localhost:8080/api";
     let selectedIds = [];
 
-    // 🔐 Şirket ID'sini localStorage'dan al
+   
     const companyId = localStorage.getItem("companyId");
     if (!companyId) {
         alert("Şirket bilgisi bulunamadı. Lütfen tekrar giriş yapın.");
@@ -275,7 +275,7 @@
         });
     }
 
-    // 7. ANA KAYIT (Turu Kaydet) – sadece blueprint bilgisi
+    // 7. ANA KAYIT (Turu Kaydet) 
     function turuKaydet() {
         if (selectedIds.length === 0) { 
             alert("En az bir şehir seçmelisiniz!"); 

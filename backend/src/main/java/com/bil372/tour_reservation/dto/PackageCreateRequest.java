@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 public class PackageCreateRequest {
     
-    private Integer tourId; // Hangi tura ekliyoruz? (Örn: 5)
+    private Integer tourId; // Hangi tura ekliyoruz? 
     private LocalDate startDate;
     private LocalDate endDate;
     private BigDecimal basePrice;

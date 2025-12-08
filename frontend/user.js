@@ -7,7 +7,6 @@ const USER_ID = localStorage.getItem("userId");
 const USER_EMAIL = localStorage.getItem("userEmail");
 const IS_LOGGED_IN = localStorage.getItem("isLoggedIn") === "true";
 
-// 🔴 Kullanıcının yorum yaptığı tur ID’lerini tutacağız
 let REVIEWED_TOUR_IDS = new Set();
 
 // Eğer kullanıcı giriş yapmamışsa login sayfasına at
@@ -27,11 +26,9 @@ function formatDateTime(value) {
             return d.toLocaleDateString("tr-TR");
         }
 
-        // Normal datetime (ör: 2025-12-03T15:30:00) geliyorsa
         const d = new Date(value);
         if (isNaN(d.getTime())) return value;
 
-        // Hem tarih hem saat istersen:
         return d.toLocaleString("tr-TR");
     } catch {
         return value;
@@ -39,11 +36,7 @@ function formatDateTime(value) {
 }
 
 
-/**
- * Her rezervasyon kartını HTML string'e çevirir.
- * Eğer r.review varsa sadece gösterir,
- * yoksa rating + yorum formu ekler.
- */
+
 function renderReservationCard(r) {
     const pkg = r.tourPackage || {};
     const tour = pkg.tour || {};
@@ -59,7 +52,6 @@ function renderReservationCard(r) {
     const tourId = tour.tourId || pkg.tourId || pkg.packageId || null;
     const detailId = tourId || "";
 
-    // 🔴 Bu tura zaten yorum yapılmış mı?
     const hasReviewForThisTour = !!review || (tourId && REVIEWED_TOUR_IDS.has(tourId));
 
     let reviewHtml = "";
@@ -74,7 +66,7 @@ function renderReservationCard(r) {
             </div>
         `;
     } else if (hasReviewForThisTour) {
-        // Bu tura (herhangi bir rezervasyon üzerinden) zaten yorum yapılmış
+        // Bu tura zaten yorum yapılmış
         reviewHtml = `
             <div class="review-block">
                 <strong>Bu tura zaten yorum yaptınız.</strong>
@@ -84,7 +76,7 @@ function renderReservationCard(r) {
             </div>
         `;
     } else {
-        // Henüz bu tura hiç yorum yok -> form göster
+       
         reviewHtml = `
             <div class="review-form">
                 <label>Puan (1-5):</label>
@@ -213,7 +205,7 @@ function attachReviewHandlers() {
                 })
                 .then(() => {
                     alert("Yorum kaydedildi!");
-                    // "Yorumlarım" listesini yenile (set güncellensin)
+                    // "Yorumlarım" listesini yenile 
                     loadUserReviews(() => {
                         // sonra rezervasyon kartlarını güncelle (formlar kaybolsun)
                         loadReservations();
@@ -280,7 +272,7 @@ function loadUserReviews(callback) {
             return res.json();
         })
         .then(list => {
-            // 🔴 Burada set’i güncelliyoruz
+            
             REVIEWED_TOUR_IDS = new Set(
                 (list || [])
                     .map(r => (r.tour && r.tour.tourId) ? r.tour.tourId : null)
@@ -375,12 +367,10 @@ document.addEventListener("DOMContentLoaded", () => {
         avatarEl.src = "profile_picture.jpg";
     }
 
-    // 🔹 Geri butonu ve logout olaylarını ayarla
     setupBackButton();
     setupLogout();
 
-    // 1) Önce yorumlar -> REVIEWED_TOUR_IDS dolsun
-    // 2) Sonra rezervasyonlar -> form / "zaten yorum yaptınız" mantığı doğru çalışsın
+  
     loadUserReviews(() => {
         loadReservations();
     });

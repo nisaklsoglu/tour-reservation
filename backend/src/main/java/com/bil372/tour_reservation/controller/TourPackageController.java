@@ -105,7 +105,6 @@ public class TourPackageController {
     public List<TourPackage> getPackagesByDepartureAirport(@PathVariable("airportCode") String airportCode) {
         return tourPackageService.getPackagesByDepartureAirport(airportCode);
     }
-    // Controller içine ekle:
     
     // Örnek: http://localhost:8080/api/tour-packages/by-hotel/Lumiere
     @GetMapping("/by-hotel/{hotelName}")
@@ -113,10 +112,9 @@ public class TourPackageController {
         return tourPackageService.getPackagesByHotelName(hotelName);
     }
 
-    // TourPackageController.java içine:
 
-    // Örnek: POST http://localhost:8080/api/tour-packages/1/assign-guide/2
-    // (Paket 1'e, Rehber 2'yi ata)
+
+  
     @PostMapping("/{packageId}/assign-guide/{guideId}")
     public ResponseEntity<String> assignGuide(@PathVariable Integer packageId, @PathVariable Integer guideId) {
         tourPackageService.assignGuideToPackage(packageId, guideId);

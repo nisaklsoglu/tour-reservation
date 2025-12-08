@@ -24,9 +24,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
 
-        // Artık email formatını ve boş olup olmadığını
-        // RegisterRequest içindeki @Email ve @NotBlank kontrol ediyor.
-        // İstersen şifre için ekstra manuel kontrol bırakabilirsin:
+        
 
         if (request.getPassword() == null || request.getPassword().isBlank()) {
             return ResponseEntity.badRequest().body("Şifre zorunludur.");

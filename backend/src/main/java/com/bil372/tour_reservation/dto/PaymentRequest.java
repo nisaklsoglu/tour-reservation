@@ -6,7 +6,7 @@ public class PaymentRequest {
     private Integer reservationId;
     private BigDecimal amount;
     
-    // Kart Bilgileri (Veritabanına kaydetmeyeceğiz, sadece simülasyon için)
+    
     private String cardHolderName;
     private String cardNumber;
     private String expireDate;

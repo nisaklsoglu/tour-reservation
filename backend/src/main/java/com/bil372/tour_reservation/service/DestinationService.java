@@ -28,8 +28,7 @@ public class DestinationService {
     // YENİ VE AKILLI KAYIT METODU
     public Destination createDestination(Destination destination) {
         
-        // 1. Gelen verileri temizle ve formatla (Baş harf büyük, gerisi küçük)
-        // Örn: "pARis" -> "Paris", "  fransa " -> "Fransa"
+        
         String cleanCity = capitalize(destination.getDestinationCity());
         String cleanCountry = capitalize(destination.getDestinationCountry());
         String cleanName = cleanCity + " Merkez"; // İsmi otomatik oluşturuyoruz
@@ -51,7 +50,7 @@ public class DestinationService {
         return destinationRepository.save(destination);
     }
 
-    // --- YARDIMCI METOT (En alta ekle) ---
+
     // Kelimelerin ilk harfini büyütür: "ankara" -> "Ankara"
     private String capitalize(String str) {
         if (str == null || str.isEmpty()) return str;

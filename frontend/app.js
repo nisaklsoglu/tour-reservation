@@ -22,7 +22,7 @@ function turlariGetir() {
             }
 
             data.forEach(tur => {
-                // HTML Kodu (Buton buraya eklendi)
+                // HTML Kodu 
                 const turKarti = `
                     <div class="tour-card" style="border:1px solid #ccc; padding:15px; margin:10px; border-radius:8px; background:#fff;">
                         <h2>✈️ ${tur.packageName}</h2>

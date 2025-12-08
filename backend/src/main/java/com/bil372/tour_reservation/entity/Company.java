@@ -12,7 +12,7 @@ public class Company {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)   // 🔥 hangi user’ın şirketi
+    @JoinColumn(name = "user_id", nullable = false)  
     private User user;
 
     @Column(name = "tursab_no", nullable = false, unique = true, length = 50)

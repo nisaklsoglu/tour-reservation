@@ -41,7 +41,6 @@ public class ReservationService {
         TourPackage tourPackage = tourPackageRepository.findById(request.getPackageId())
                 .orElseThrow(() -> new RuntimeException("Paket bulunamadı!"));
 
-        // 2. KAPASİTE KONTROLÜ (YENİ MANTIK)
         // Frontend'den gelen yolcu sayısı ile veritabanındaki kalan koltuğu kıyasla
         int totalPassengers = request.getPassengers().size(); // Listeden alıyoruz
         
@@ -56,13 +55,11 @@ public class ReservationService {
         // 4. Rezervasyon Ana Kaydını Oluştur
         Reservation reservation = new Reservation();
         reservation.setUser_id(request.getUserId()); // Mevcut kullanıcı
-       // DOĞRU: Yukarıda veritabanından çektiğimiz 'tourPackage' nesnesini veriyoruz
+ 
         reservation.setTourPackage(tourPackage);
         reservation.setReservationDate(java.time.LocalDate.now());
         reservation.setStatus("Beklemede"); 
 
-        // Fiyat Hesapla (Basit mantık: Kişi Başı * Kişi Sayısı)
-        // İleride oda tipine göre burada switch-case yapabiliriz.
         if (tourPackage.getBasePrice() != null) {
             BigDecimal totalPrice = tourPackage.getBasePrice().multiply(BigDecimal.valueOf(totalPassengers));
             reservation.setTotalPrice(totalPrice);

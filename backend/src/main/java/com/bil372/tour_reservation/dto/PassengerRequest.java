@@ -1,13 +1,11 @@
 package com.bil372.tour_reservation.dto;
 
-// --- GEREKLİ IMPORTLAR (Bunlar olmazsa hata verir) ---
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
-import java.time.LocalDate; // <--- BU EKSİKTİ, O YÜZDEN LOCALDATE HATASI ALIYORDUN
-// -----------------------------------------------------
+import java.time.LocalDate; 
 
 public class PassengerRequest {
 

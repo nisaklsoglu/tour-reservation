@@ -75,13 +75,9 @@ public class TourService {
         newPackage.setGuideId(request.getGuideId());
         newPackage.setBookedCount(0); // Henüz kimse almadı
 
-        // --- YENİ EKLENEN KRİTİK KISIM ---
-        // Paketin başlangıç stoğunu, turun genel kapasitesine eşitliyoruz.
-        // Örn: Tur 40 kişilikse, paketin de 40 boş koltuğu vardır.
+      
         newPackage.setAvailableSeats(existingTour.getCapacity());
-        // ---------------------------------
-
-        // Kaydet
+       
         return tourPackageRepository.save(newPackage);
     }
 
@@ -95,7 +91,7 @@ public class TourService {
         tour.setDescription(request.getDescription());
         tour.setTourType(request.getTourType());
         tour.setCapacity(request.getCapacity());     // kapasite
-        tour.setDuration(request.getDuration());     // ✅ EKSİK OLAN KISIM
+        tour.setDuration(request.getDuration());     
 
         tour.setReview_count(0);
         tour.setAvg_rating(null);
@@ -146,7 +142,7 @@ public List<Tour> getToursByCountry(String countryName) {
         
         return result;
     }
-    // Kapasiteye Göre Filtreli DTO Döndüren Metot
+   
     public List<TourWithPackagesDTO> getToursWithFilteredPackagesByCapacity(Integer seats) {
         // 1. Yeterli yeri olan turları bul
         List<Tour> tours = tourRepository.findToursByPackageAvailability(seats);
@@ -207,13 +203,13 @@ public List<Tour> getToursByCountry(String countryName) {
             }
 
             if (!validPackages.isEmpty()) {
-                // --- PAKETLERİ DE SIRALA (YENİ KISIM) ---
+               
                 if ("priceAsc".equals(sortBy)) {
                     validPackages.sort(Comparator.comparing(TourPackage::getBasePrice));
                 } else if ("priceDesc".equals(sortBy)) {
                     validPackages.sort(Comparator.comparing(TourPackage::getBasePrice).reversed());
                 }
-                // ---------------------------------------
+            
 
                 result.add(new TourWithPackagesDTO(tour, validPackages));
             }

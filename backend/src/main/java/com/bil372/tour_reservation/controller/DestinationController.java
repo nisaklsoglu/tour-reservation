@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-// DÜZELTME 1: Ana adresi "/api/destinations" yaptık. 
-// Artık aşağıdaki tüm metodlar bu adresin altına eklenecek.
+
 @RequestMapping("/api/destinations") 
 @CrossOrigin(origins = "*")
 public class DestinationController {
@@ -43,7 +42,7 @@ public class DestinationController {
 
     // 4. YENİ ŞEHİR EKLEME
     // Adres: /api/destinations/create
-    // DÜZELTME 2: Başındaki "destinations/" yazısını sildik çünkü yukarıda zaten tanımlı.
+    
     @PostMapping("/create")
     public ResponseEntity<Destination> createDestination(@RequestBody Destination destination) {
         Destination savedDest = destinationService.createDestination(destination);

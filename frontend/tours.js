@@ -130,7 +130,7 @@ function renderCards(data) {
     });
 }
 
-// --- YARDIMCI FONKSİYONLAR ---
+
 
 function ulkeleriDoldur() {
     fetch(`${API_BASE}/destinations/countries`)

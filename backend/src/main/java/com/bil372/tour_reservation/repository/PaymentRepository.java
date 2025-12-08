@@ -6,6 +6,4 @@ import java.util.List;
 
 public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     
-    // (Opsiyonel) Belirli bir rezervasyona ait ödemeyi bulmak istersen:
-    // Payment findByReservation_ReservationId(Integer reservationId);
 }

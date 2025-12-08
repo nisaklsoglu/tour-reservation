@@ -22,12 +22,12 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                // CORS'u aktif et ve aşağıdaki bean'i kullan
+                
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // Preflight (OPTIONS) isteklerini serbest bırak
+                    
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Geri kalan her şeyi de şu an için serbest bırakıyoruz
+                   
                         .anyRequest().permitAll()
                 )
                 .formLogin(login -> login.disable())
@@ -40,7 +40,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Frontend'i hangi origin'den çalıştırıyorsan buraya ekle
+        
         config.setAllowedOrigins(List.of(
                 "http://localhost:5500",
                 "http://127.0.0.1:5500",

@@ -66,8 +66,7 @@ public class TourController {
         return ResponseEntity.ok(tourService.addPackageToExistingTour(request));
     }
 
-    // --- YARDIMCI METOTLAR (İstersen tutabilirsin ama searchTours bunları da kapsıyor) ---
-    
+
     @GetMapping
     public List<Tour> getAllTours() {
         return tourService.getAllTours();

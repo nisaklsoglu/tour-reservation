@@ -30,11 +30,11 @@ public interface TourRepository extends JpaRepository<Tour, Integer> {
     List<Tour> findByDestinationId(@Param("destId") Integer destId);
 
     // Kullanıcı "Roma" yazarsa hem Roma şehrini hem Roma ismini içeren turları bulur.
-    // MANY-TO-MANY İÇİN GÜNCELLENMİŞ SORGU:
+  
     // "t.destinations" diyerek Java üzerinden ilişkiye gidiyoruz.
     // JOIN işlemi otomatik yapılıyor.
     
-    // MANY-TO-MANY İÇİN GÜNCELLENMİŞ SORGU:
+   
     // "t.destinations" diyerek Java üzerinden ilişkiye gidiyoruz.
     // JOIN işlemi otomatik yapılıyor.
     

@@ -71,7 +71,7 @@ public class ReviewService {
         try {
             return reviewRepository.save(review);
         } catch (DataIntegrityViolationException e) {
-            // Örn: DB'de kolon ismi ya da not-null constraint patlarsa
+            
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "Veritabanı hatası: " + e.getMostSpecificCause().getMessage(),

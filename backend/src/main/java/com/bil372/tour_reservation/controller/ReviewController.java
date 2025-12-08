@@ -38,7 +38,7 @@ public class ReviewController {
         return ResponseEntity.ok(review);
     }
 
-    // TUR DETAY: GET /api/users/tours/{tourId}/reviews (istersen sonra başka controller'a taşırsın)
+    // TUR DETAY: GET /api/users/tours/{tourId}/reviews 
     @GetMapping("/tours/{tourId}/reviews")
     public List<Review> getReviewsForTour(@PathVariable Integer tourId) {
         return reviewService.getReviewsByTour(tourId);

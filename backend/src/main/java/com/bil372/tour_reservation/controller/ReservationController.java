@@ -21,11 +21,9 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
-    // Removed duplicate mapping; use the ResponseEntity-returning method below.
-
+  
     @PostMapping("/create")
-    // DÜZELTME BURADA: @Valid ekledik.
-    // Artık Pasaport no girilmezse veya TC eksikse, kod Service'e bile girmeden hata verir.
+    
     public ResponseEntity<?> createReservation(@Valid @RequestBody ReservationRequest request) {
         try {
             Reservation newReservation = reservationService.createReservation(request);

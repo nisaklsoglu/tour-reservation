@@ -2,7 +2,7 @@ package com.bil372.tour_reservation.dto;
 
 public class CompanyRegisterRequest {
 
-    private Integer userId;      // 🔥 hangi user şirket oluyor
+    private Integer userId;      
     private String tursabNo;
     private String name;
     private String email;

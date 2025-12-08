@@ -24,7 +24,7 @@ public class Reservation {
     @Column(name = "reservation_date", nullable = false)
     private LocalDate reservationDate;
     
-    // Örn: PENDING / CONFIRMED / CANCELLED
+    
     @Column(name = "status", length = 20)
     private String status;
     

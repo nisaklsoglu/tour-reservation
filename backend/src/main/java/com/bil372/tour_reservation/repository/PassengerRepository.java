@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PassengerRepository extends JpaRepository<Passenger, Integer> {
     // JpaRepository sayesinde save(), findById() gibi metotlar hazır gelir.
-    // Ekstra kod yazmana gerek yok.
+   
 }

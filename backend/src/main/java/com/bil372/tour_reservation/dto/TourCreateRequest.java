@@ -24,12 +24,12 @@ public class TourCreateRequest {
 
     private List<Integer> destinationIds;
     // --- Getter ve Setter'lar ---
-    // (Hepsini oluşturmalısın: Sağ tık -> Source Action -> Generate Getters/Setters)
+  
     public List<Integer> getDestinationIds() {return destinationIds;}
     public void setDestinationIds(List<Integer> destinationIds) {  this.destinationIds = destinationIds;}
     public Integer getCompanyId() { return companyId; }
     public void setCompanyId(Integer companyId) { this.companyId = companyId; }
-    // ... Diğerleri ...
+
     public String getPackageName() { return packageName; }
     public void setPackageName(String packageName) { this.packageName = packageName; }
     
@@ -39,7 +39,7 @@ public class TourCreateRequest {
     public BigDecimal getBasePrice() { return basePrice; }
     public void setBasePrice(BigDecimal basePrice) { this.basePrice = basePrice; }
     
-    // ... Hepsini ekle ...
+
     public Integer getDestinationId() { return destinationId; }
     public void setDestinationId(Integer destinationId) { this.destinationId = destinationId; }
     public String getDescription() { return description; }

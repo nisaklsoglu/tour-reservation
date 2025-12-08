@@ -272,7 +272,7 @@
 
     let currentTourCapacity = 0;
     // --- 1. TUR BİLGİSİNİ ÇEK VE OTELLERİ FİLTRELE ---
-    async function loadTourInfo() {
+   async function loadTourInfo() {
         try {
             const res = await fetch(`${API_BASE}/tours/${tourId}`);
             if (!res.ok) throw new Error("Tur bulunamadı");
@@ -280,6 +280,9 @@
             
             document.getElementById("tourTitle").innerText = "Tur: " + data.packageName;
             document.getElementById("tourDesc").innerText = data.description;
+
+
+            const cityNames = data.destinations.map(d => d.destinationCity);
             if(data.capaticy){
                 currentTourCapacity = data.capaticy;
                 const capInput=data.capaticy
@@ -287,11 +290,9 @@
                     capInput.value=data.capaticy
                 }
             }
-
-             
                 
                 console.log("Aranacak Şehirler:", cityNames); 
-            // --- ÇOKLU ŞEHİR MANTIĞI BURADA ---
+            // --- ÇOKLU ŞEHİR MANTIĞI ---
             if (cityNames.length > 1) {
             // BİRDEN FAZLA ŞEHİR VARSA -> Multi Fonksiyonu
             loadHotelsMulti(cityNames);
@@ -366,12 +367,12 @@
             }
         } catch(e) { console.error(e); }
     }
-    // --- YENİ: TEK ŞEHİR İÇİN OTEL GETİRME ---
+   
 async function loadHotels(cityName) {
     const select = document.getElementById("hotelSelect");
     select.innerHTML = '<option value="">Yükleniyor...</option>';
 
-    // Bu özelliği, yeni otel eklerken hangi şehri yenileyeceğimizi bilmek için ekliyoruz
+    
     select.setAttribute("data-current-city", cityName || "");
 
     let url;
@@ -402,7 +403,7 @@ async function loadHotels(cityName) {
             hotels.forEach(h => {
                 const opt = document.createElement("option");
                 opt.value = h.hotelId;
-                // Şehir filtreli olduğu için parantez içinde sadece yıldız yazabiliriz
+                
                 opt.text = `${h.hotelName} (${h.hotelRate}★) - ${h.hotelAddress}`;
                 select.appendChild(opt);
             });
@@ -439,8 +440,7 @@ async function loadHotels(cityName) {
                 results.forEach(list => allHotels.push(...list));
             }
 
-            // --- AYNI OTELİ İKİ KERE EKLEMEYİ ÖNLE (Tekilleştirme) ---
-            // (Belki bir otelin adresinde hem Paris hem Fransa geçiyordur, çift gelmesin)
+            
             const uniqueHotels = [];
             const map = new Map();
             for (const item of allHotels) {
@@ -492,7 +492,7 @@ async function loadHotels(cityName) {
         }
 
         // 3. Veriyi Hazırla (Backend DTO ile uyumlu olmalı)
-        // HotelRequest.java: hotelName, hotelRate, hotelAddress
+    
         const data = {
             hotelName: hotel_name,
             hotelRate: parseInt(hotel_rate),
@@ -519,11 +519,7 @@ async function loadHotels(cityName) {
                 document.getElementById("newHRate").value = "";
                 document.getElementById("newHAddr").value = "";
 
-                // Listeyi Yenile (Yeni otel görünsün diye)
-                // Şehre göre filtreleme varsa, mevcut şehri koruyarak yenilememiz lazım.
-                // Şimdilik basitçe loadHotels() diyoruz, eğer hata verirse loadHotels(null) dene.
-                
-                // Mevcut Turun Şehrini Bulup Yenileyelim (Daha Akıllıca)
+        
                 const currentCity = document.getElementById("hotelSelect").getAttribute("data-current-city");
                 loadHotels(currentCity || null); 
 
@@ -654,9 +650,7 @@ async function loadHotels(cityName) {
     // --- GLOBAL DEĞİŞKEN ---
     let selectedFlights = []; 
 
-    // Sayfa açılışında çalışacaklara ekle:
-    // loadFlights(); // (DOMContentLoaded içine ekle)
-
+   
     // --- 1. Uçuşları Getir ve Doldur ---
     async function loadFlights() {
         const res = await fetch(`${API_BASE}/flights/all`);
@@ -760,8 +754,6 @@ async function loadHotels(cityName) {
                 </div>`;
         });
     }
-
-    // --- 4. KAYIT FONKSİYONUNU GÜNCELLE ---
     // savePackageWithHotels fonksiyonunun adını 'saveEverything' yapabilirsin
     // İçine şu döngüyü ekle:
 
