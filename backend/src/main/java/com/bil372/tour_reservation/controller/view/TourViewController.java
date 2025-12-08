@@ -1,8 +1,8 @@
-package com.bil372.tour_reservation.controller;
+package com.bil372.tour_reservation.controller.view;
 
 import com.bil372.tour_reservation.entity.view.TourFullView;
 import com.bil372.tour_reservation.repository.view.TourReviewProjection;
-import com.bil372.tour_reservation.service.ViewService;
+import com.bil372.tour_reservation.service.view.ViewService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.bil372.tour_reservation.service;
+package com.bil372.tour_reservation.service.view;
 
 import com.bil372.tour_reservation.entity.view.TourFullView;
 import com.bil372.tour_reservation.entity.view.UserReservationView;
